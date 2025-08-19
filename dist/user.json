@@ -1,0 +1,41 @@
+[
+    {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Graham",
+        "lastname": "Bret",
+        "cel": "309 678 9876",
+        "email": "Sincere@april.biz",
+        "ubication": {
+            "country": "Colombia",
+            "city": "Bogota",
+            "zone": "Suba"
+        },
+        "photo": "https://cdn-icons-png.flaticon.com/512/12225/12225881.png"
+    },
+    {
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Maria",
+        "lastname": "Bret",
+        "cel": "309 678 9876",
+        "email": "Sincere@april.biz",
+        "ubication": {
+            "country": "Colombia",
+            "city": "Medellin",
+            "zone": "Laureles"
+        },
+        "photo": ""
+    },
+    {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Luis",
+        "lastname": "Cordoba",
+        "cel": "309 678 9876",
+        "email": "Sincere@april.biz",
+        "ubication": {
+            "country": "Colombia",
+            "city": "Neiva",
+            "zone": "Huila"
+        },
+        "photo": ""
+    }
+]

@@ -1,0 +1,53 @@
+@host = localhost
+@port = 3000
+
+### GET all users
+GET http://{{host}}:{{port}}/user
+
+### GET a user by id
+GET http://{{host}}:{{port}}/user/550e8400-e29b-41d4-a716-446655440001
+
+### GET users by query name
+GET http://{{host}}:{{port}}/user?name=maRia
+
+### GET users by query lastname
+GET http://{{host}}:{{port}}/user?lastname=bret
+
+### GET users by query name and lastname
+GET http://{{host}}:{{port}}/user?name=luIs&lastname=Cordoba
+
+### POST a new user
+POST http://{{host}}:{{port}}/user
+Content-Type: application/json
+
+{
+  "sql": "SELECT (name, cel, email) FROM user WHERE id=5fe99f3c-cb58-4ab5-afb0-0f81eaca197f",
+  "id": "550e8400-e29b-41d4-a716-446655440023",
+  "name": "Diana",
+  "lastname": "Garzon",
+  "cel": "",
+  "email": "lolitAas@april.biz",
+  "ubication": {
+    "country": "Colombia",
+    "city": "Huila",
+    "zone": ""
+  },
+  "photo": ""
+}
+
+### PATCH a user exited
+PATCH http://{{host}}:{{port}}/user/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "name": "Maria Eugenia",
+  "cel": "309 678 9876",
+  "email": "mariasEugenias@gmail.com",
+  "ubication": {
+    "country": "colombia",
+    "city": "Medellin"
+  }
+}
+
+### DELETE a user exited
+DELETE http://{{host}}:{{port}}/user/550e8400-e29b-41d4-a716-446655440002
