@@ -65,7 +65,7 @@ export class UserController {
         }
     }
 
-    static postNewUser = (
+    static postNewUser = async (
         _req: Request<{}, {}, UserTypeWithoutId>,
         res: Response<UserType | {error: string | Record<string, string[]> | undefined}>) => {
         try {
@@ -77,7 +77,7 @@ export class UserController {
                 return res.status(422).json({ error: errorMessage.fieldErrors })
             }
 
-            const newUser: UserType = UserService.postNewUser(bodyValidation.data)
+            const newUser: UserType = await UserService.postNewUser(bodyValidation.data)
 
             return res.status(200).json(newUser)
 
@@ -87,7 +87,7 @@ export class UserController {
         }
     }
 
-    static patchUser = (_req: Request<{id: UserType['id']}, {}, UserTypeOptionalWithoutId>,
+    static patchUser = async (_req: Request<{id: UserType['id']}, {}, UserTypeOptionalWithoutId>,
                      res: Response<UserTypeOptionalWithoutId | {error: string | Record<string, string[]> | undefined}>) => {
         // Record<K, T> objeto clave, valor
         try {
@@ -107,7 +107,7 @@ export class UserController {
                 return res.status(422).json({ error: errorMessage.fieldErrors })
             }
 
-            const updatedUser: UserTypeOptionalWithoutId = UserService.patchUser(idValidation.data, bodyValidation.data)
+            const updatedUser: UserTypeOptionalWithoutId = await UserService.patchUser(idValidation.data, bodyValidation.data)
 
             return  res.status(200).json(updatedUser)
 

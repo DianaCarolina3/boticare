@@ -1,0 +1,40 @@
+[
+  {
+    "users": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "Diana",
+      "lastname": "Campuzano",
+      "password": "1234",
+      "cel": "3106364412",
+      "email": "Sincere@april.biz",
+      "photo": "https://cdn-icons-png.flaticon.com/512/12225/12225881.png"
+    }
+  },
+  {
+    "ubication": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "country": "Colombia",
+      "city": "Bogota",
+      "zone": "Suba"
+    }
+  },
+  {
+    "contact_preferences": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "method": ["email", "chat"]
+    }
+  },
+  {
+    "medications": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "Budesonida",
+      "type": "inhaler",
+      "expiration_date": "01-12-2026",
+      "quantity": 2,
+      "condition": ["new", "good"],
+      "description": "Inhalador para el asma",
+      "diseases": ["asma", "tos"],
+      "photo": "photo_de_inhalador"
+    }
+  }
+]
