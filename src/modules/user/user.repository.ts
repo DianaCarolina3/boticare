@@ -4,8 +4,7 @@ import pool from '../../database/connection.js'
 
 import {UserSchema,
     type UserType,
-    type UserTypeOptionalWithoutId,
-    type UserTypeWithoutId} from "./user.schema.js";
+    type UserTypeOptionalWithoutId} from "./user.schema.js";
 
 // por archivo json validamos datos (en local)
 // con db lista debe enviarse a la db y solo se valida en el controller el post y put
@@ -79,15 +78,14 @@ export class UserRepository {
 
     }
 
-    static async createNewUser(body: UserTypeWithoutId): Promise<UserType> {
-        const query = `INSERT INTO users(id, name, lastname, password, email, cel, photo) 
-                            VALUES($1, $2, $3, $4, $5, $6, $7) 
-                            RETURNING id`
+    static async createNewUser(body: UserType): Promise<UserType> {
+        const query = `INSERT INTO users(id, name, lastname, email, cel, photo) 
+                            VALUES($1, $2, $3, $4, $5, $6) 
+                            RETURNING *`
         const values = [
-            crypto.randomUUID(),
+            body.id,
             body.name,
             body.lastname,
-            body.password,
             body.email,
             body.cel,
             body.photo

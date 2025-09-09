@@ -1,7 +1,9 @@
 // Implementa la lógica de negocio -> Model
 import { UserRepository } from './user.repository.js'
+import { AuthService } from "../auth/auth.service.js";
 import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./user.schema.js";
 import { hashPassword } from "../../utils/hash.js";
+
 
 export class UserService {
 
@@ -44,7 +46,15 @@ export class UserService {
         body.cel = celWithoutSpaces
         body.password = hashedPassword
 
-        return await UserRepository.createNewUser(body)
+        let data = {
+            id: crypto.randomUUID(),
+            ...body,
+        }
+
+        const user =  await UserRepository.createNewUser(data)
+        await AuthService.createAuthUser(user, data.password)
+
+        return user
     }
 
     static async patchUser(id: UserType['id'], body: UserTypeOptionalWithoutId): Promise<UserType[]> {
