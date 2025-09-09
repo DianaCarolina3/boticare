@@ -1,15 +1,14 @@
 import * as z from 'zod'
 import type { ZodUUID } from 'zod'
 
-// ----- organizar depende del frontend
+// ----- organizar depende del front
 /*const photoSchemaImage = z.string().trim()*/
+
 // si la photo no es undefined, la valida, entonces si es null o '' que la convierta a undefined
 const photoSchemaUrl = z.preprocess((value) => {
     if (value === ''|| value === null) return undefined
     return value
 }, z.url({ error: 'Must be URL image or a secure version of HTTP' , protocol: /^https$/ }).trim().default('https://cdn-icons-png.flaticon.com/512/12225/12225881.png'))
-
-
 
 export const UserSchema = z.object({
     id: z.uuid(),
@@ -21,17 +20,7 @@ export const UserSchema = z.object({
     cel: z.union([z.string(), z.number()]).transform(
         value => String(value).trim()
     ),
-    email: z.email(),
-    // ubication: z.object({
-    //     // tranforma valores antes de validar
-    //     // pasa a minusculas y luego válida que sea colombia
-    //     country: z.string({ error: 'Must be a string'}).transform(value => value.trim().toLowerCase())
-    //         .refine(value => value === 'colombia', {
-    //             error: 'Must be only Colombia'
-    //         }).transform(() => 'Colombia'),
-    //     city: z.string({ error: 'City is required'}).trim().min(3, 'City is required'),
-    //     zone: z.string({ error: 'Zone is required'}).trim(),
-    // }),
+    email: z.email().transform(value => value.toLowerCase()),
     photo: photoSchemaUrl
 })
 
@@ -47,19 +36,10 @@ export const UserSchemaToCreate = UserSchema.omit({
     id: true
 })
 
-// partial pone todas las propiedades opcionales
-// el address es opcional pero sus propiedades no y también queremos que lo sean
-// extend agrega o sobre escribe las propiedades
 export const UserSchemaToUpdate = UserSchema.omit({
     id: true,
-// }).extend({
-//     // shape permite acceder a los objetos internos, este caso de address
-//     // parcial hace que las propiedades del objeto sean opcionales, pero no el objecto
-//     // opcional hace que pueda omitirse el address el objeto
-//     ubication: UserSchema.shape.ubication.partial().optional()
-}).partial().extend({
-    password: UserSchema.shape.password.optional()
-})
+
+}).partial()
 
 export type UserType = z.infer<typeof UserSchema>
 

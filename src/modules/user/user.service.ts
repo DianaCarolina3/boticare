@@ -1,33 +1,32 @@
 // Implementa la lógica de negocio -> Model
-import { UserModel } from './user.model.js'
+import { UserRepository } from './user.repository.js'
 import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./user.schema.js";
-import users from '../../test/user.json' with { type: 'json' }
-import {hashPassword} from "../../utils/hash.js";
+import { hashPassword } from "../../utils/hash.js";
 
 export class UserService {
 
-    static getAllUsers(): UserType[] {
-        return  UserModel.find()
+    static async getAllUsers(): Promise<UserType[]> {
+        return  await UserRepository.find()
     }
 
-    static getByIdUser(id: UserType['id']): UserType | undefined {
-        const user = UserModel.findId(id)
-
-        if (!user) {
-            throw new Error('User not found')
-        }
-
-        return user
-    }
-
-    static getByNameAndLastname(name?: UserType['name'], lastname?: UserType['lastname']): UserType[] {
-         const users: UserType[] = UserModel.findNameAndLastname(name, lastname)
+    static async getByNameAndLastname(name?: UserType['name'], lastname?: UserType['lastname']): Promise<UserType[]> {
+         const users: UserType[] = await UserRepository.findNameAndLastname(name, lastname)
 
             if (!users || users.length === 0) {
                 throw new Error('Users not found')
             }
 
             return users
+    }
+
+    static async getByIdUser(id: UserType['id']): Promise<UserType[] | boolean> {
+        const user = await UserRepository.findId(id)
+
+        if (user === false) {
+            throw new Error('User not found')
+        }
+
+        return user
     }
 
     static async postNewUser(body: UserTypeWithoutId): Promise<UserType> {
@@ -37,21 +36,21 @@ export class UserService {
         let celWithoutSpaces = body.cel.replaceAll(" ", "")
 
         // evitar email duplicado en db
-        const emailExists = UserModel.findEmail(body.email)
+        const emailExists = await UserRepository.findEmail(body.email)
         if (emailExists) {
-            throw new Error('Email existed')
+            throw new Error('Email exists or is in use')
         }
 
         body.cel = celWithoutSpaces
         body.password = hashedPassword
 
-        return UserModel.createNewUser(body)
+        return await UserRepository.createNewUser(body)
     }
 
-    static async patchUser(id: UserType['id'], body: UserTypeOptionalWithoutId): Promise<UserType> {
-        const indexUser = users.findIndex(item => item.id === id)
-
-        if (indexUser === -1) {
+    static async patchUser(id: UserType['id'], body: UserTypeOptionalWithoutId): Promise<UserType[]> {
+        // buscar id para saber si existe y poder actualizarlo
+        const user = await UserRepository.findId(id)
+        if (user === false) {
             throw new Error('User not found')
         }
 
@@ -61,25 +60,29 @@ export class UserService {
             hashedPassword = await hashPassword(body.password)
             body.password = hashedPassword
         }
-        // si vienen el cel
+        // si vienen el cel quitar espacios
         let celWithoutSpaces
         if (body.cel) {
             celWithoutSpaces = body.cel.replaceAll(" ", "")
             body.cel = celWithoutSpaces
         }
+        // verificar si email existe
+        const emailExists = await UserRepository.findEmail(body.email)
+        if (emailExists) {
+            throw new Error('Email exists or is in use')
+        }
 
-        // ignorar por ahora hasta db
-        return UserModel.updateUser(indexUser, body)
+        return await UserRepository.updateUser(id, body)
     }
 
     static deleteUser(id: UserType['id']): string {
-        const user = UserModel.findId(id)
+        const user = UserRepository.findId(id)
 
         if (!user) {
             throw new Error('User not found')
         }
 
-        return UserModel.deleteUser(id)
+        return UserRepository.deleteUser(id)
     }
 
 }

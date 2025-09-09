@@ -5,13 +5,13 @@
 GET http://{{host}}:{{port}}/users
 
 ### GET a user by id
-GET http://{{host}}:{{port}}/users/550e8400-e29b-41d4-a716-446655440001
+GET http://{{host}}:{{port}}/users/4484329a-fc43-4aa7-8357-c19283bbb885
 
 ### GET users by query name
-GET http://{{host}}:{{port}}/users?name=maRia
+GET http://{{host}}:{{port}}/users?name=MarIa
 
 ### GET users by query lastname
-GET http://{{host}}:{{port}}/users?lastname=bret
+GET http://{{host}}:{{port}}/users?lastname=garzon
 
 ### GET users by query name and lastname
 GET http://{{host}}:{{port}}/users?name=luIs&lastname=Cordoba
@@ -23,23 +23,25 @@ Content-Type: application/json
 {
   "sql": "SELECT (name, cel, email) FROM user WHERE id=5fe99f3c-cb58-4ab5-afb0-0f81eaca197f",
   "id": "550e8400-e29b-41d4-a716-446655440023",
-  "name": "Diana",
+  "name": "Luis",
   "lastname": "Garzon",
   "password": "12232",
-  "cel": "310 636 4412",
-  "email": "lolitas@april.biz",
+  "cel": "3156768454",
+  "email": "jimenezt@agmail.com",
   "photo": ""
 }
 
 ### PATCH a user exited
-PATCH http://{{host}}:{{port}}/users/550e8400-e29b-41d4-a716-446655440000
+PATCH http://{{host}}:{{port}}/users/5556f198-e2d4-44e9-ac97-ab7f63796dd2
 Content-Type: application/json
 
 {
   "name": "Maria Eugenia",
-  "cel": "309 678 9876",
-  "email": "mariasEugenias@gmail.com",
-  "password": "3413"
+  "lastname": "Duran",
+  "password": "3413",
+  "cel": "309 125 5676",
+  "email": "mariaeugeniag@gmail.com",
+  "photo": ""
 }
 
 ### DELETE a user exited

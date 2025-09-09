@@ -15,14 +15,14 @@ import { handleError } from "../../utils/errors.js";
 
 export class UserController {
 
-    static getAllOrByNameAndLastname = (
+    static getAllOrByNameAndLastname = async (
         //params url, res body, req body, req query
         _req: Request<{}, {}, {}, {name?: string, lastname?: string}>,
         res: Response<UserType[] | {error: string | undefined}>) => {
         try {
             // Get all
             if (!_req.query.name && !_req.query.lastname) {
-                const users: UserType[] =  UserService.getAllUsers()
+                const users: UserType[] = await  UserService.getAllUsers()
                 return res.status(200).json(users)
             }
 
@@ -35,18 +35,22 @@ export class UserController {
 
             // Get a filter query for name or/and lastname
             const { name, lastname } = nameAndLastnameValidation.data
-            const users: UserType[] = UserService.getByNameAndLastname(name, lastname)
+            const users: UserType[] = await UserService.getByNameAndLastname(name, lastname)
 
             return res.status(200).json(users)
         } catch (err) {
             const error = handleError(err)
+            if (error.code === 500) {
+                console.log(error)
+                return res.status(error.code).json({ error: error.message })
+            }
             return res.status(error.code).json({ error: error.message})
         }
     }
 
-    static getById = (
+    static getById = async (
         _req: Request<{id: UserType['id']}>,
-        res: Response<UserType | {error: string | undefined}>) => {
+        res: Response<UserType[] | boolean | {error: string | undefined}>) => {
         try {
             const { id } =  _req.params
 
@@ -56,18 +60,22 @@ export class UserController {
                 return res.status(422).json({ error: errorMessage.errors[0] })
             }
 
-            const user: UserType | undefined = UserService.getByIdUser(idValidation.data)
+            const user: UserType[] | boolean = await UserService.getByIdUser(idValidation.data)
 
             return res.status(200).json(user)
         } catch (err) {
             const error = handleError(err)
+            if (error.code === 500) {
+                console.log(error)
+                return res.status(error.code).json({ error: error.message })
+            }
             return res.status(error.code).json({ error: error.message})
         }
     }
 
     static postNewUser = async (
         _req: Request<{}, {}, UserTypeWithoutId>,
-        res: Response<UserType | {error: string | Record<string, string[]> | undefined}>) => {
+        res: Response<{message: string, id: string} | {error: string | Record<string, string[]>}>) => {
         try {
             // validar body
             const bodyValidation = UserSchemaToCreate.safeParse(_req.body)
@@ -79,16 +87,23 @@ export class UserController {
 
             const newUser: UserType = await UserService.postNewUser(bodyValidation.data)
 
-            return res.status(200).json(newUser)
+            return res.status(200).json({
+                message: 'User created successfully',
+                id: newUser.id
+            })
 
         } catch (err) {
             const error = handleError(err)
+            if (error.code === 500) {
+                console.log(error)
+                return res.status(error.code).json({ error: error.message })
+            }
             return res.status(error.code).json({ error: error.message })
         }
     }
 
     static patchUser = async (_req: Request<{id: UserType['id']}, {}, UserTypeOptionalWithoutId>,
-                     res: Response<UserTypeOptionalWithoutId | {error: string | Record<string, string[]> | undefined}>) => {
+                     res: Response<UserTypeOptionalWithoutId[] | {error: string | Record<string, string[]> | undefined}>) => {
         // Record<K, T> objeto clave, valor
         try {
             const { id } = _req.params
@@ -107,12 +122,16 @@ export class UserController {
                 return res.status(422).json({ error: errorMessage.fieldErrors })
             }
 
-            const updatedUser: UserTypeOptionalWithoutId = await UserService.patchUser(idValidation.data, bodyValidation.data)
+            const updatedUser: UserTypeOptionalWithoutId[] = await UserService.patchUser(idValidation.data, bodyValidation.data)
 
             return  res.status(200).json(updatedUser)
 
         } catch (err) {
             const error = handleError(err)
+            if (error.code === 500) {
+                console.log(error)
+                return res.status(error.code).json({ error: error.message })
+            }
             return res.status(error.code).json({ error: error.message })
         }
     }
@@ -132,6 +151,10 @@ export class UserController {
             return res.status(200).json(userDeleted)
         } catch (err) {
             const error = handleError(err)
+            if (error.code === 500) {
+                console.log(error)
+                return res.status(error.code).json({ error: error.message })
+            }
             return res.status(error.code).json({ error: error.message })
         }
     }
