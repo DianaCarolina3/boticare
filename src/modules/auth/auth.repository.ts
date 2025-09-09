@@ -20,4 +20,14 @@ export class AuthRepository {
             throw new Errors('Error deleting user', 500)
         }
     }
+
+    static async updateAuthUser(idUser: UserType['id'], password: UserType['password']) {
+        const query = `UPDATE auth SET password=$1 WHERE user_id=$2`
+        const values = [password, idUser]
+
+        const { rowCount } = await pool.query(query, values)
+        if (rowCount != 1) {
+            throw new Errors('Error updating user', 500)
+        }
+    }
 }

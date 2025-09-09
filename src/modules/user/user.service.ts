@@ -82,6 +82,9 @@ export class UserService {
             throw new Errors('Email exists or is in use', 409)
         }
 
+        // actualizar password en auth
+        await AuthService.updateAuthUser(id, body)
+
         return await UserRepository.updateUser(id, body)
     }
 

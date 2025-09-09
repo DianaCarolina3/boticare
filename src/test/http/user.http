@@ -32,14 +32,13 @@ Content-Type: application/json
 }
 
 ### PATCH a user exited
-PATCH http://{{host}}:{{port}}/users/5556f198-e2d4-44e9-ac97-ab7f63796dd2
+PATCH http://{{host}}:{{port}}/users/83408984-80d3-4ef2-8d8f-0364bd3845bf
 Content-Type: application/json
 
 {
   "name": "Maria Eugenia",
   "lastname": "Duran",
   "password": "3413",
-  "cel": "309 125 5676",
   "email": "mariaeugeniag@gmail.com",
   "photo": ""
 }

@@ -92,21 +92,21 @@ export class UserRepository {
     }
 
     static async updateUser(id: UserType['id'], body: UserTypeOptionalWithoutId): Promise<UserType[]> {
-        const query = `UPDATE users SET name = $1,
-                                        lastname = $2, 
-                                        password = $3, 
-                                        email = $4, 
-                                        cel = $5, 
-                                        photo = $6
-                                    WHERE id = $7 
+        // coalesce: toma el primer valor no nulo, si es nulo, conversa el actual
+        const query = `UPDATE users SET 
+                                        name = COALESCE($1, name),
+                                        lastname = COALESCE($2, lastname),
+                                        email = COALESCE($3, name),
+                                        cel = COALESCE($4, cel),
+                                        photo = COALESCE($5, photo)
+                                    WHERE id = $6 
                                     RETURNING name, lastname, email, cel, photo`
         const values = [
-            body.name,
-            body.lastname,
-            body.password,
-            body.email,
-            body.cel,
-            body.photo,
+            body.name ?? null,
+            body.lastname ?? null,
+            body.email ?? null,
+            body.cel ?? null,
+            body.photo ?? null,
             id
         ]
 
