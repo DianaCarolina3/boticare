@@ -148,7 +148,7 @@ export class UserController {
         }
     }
 
-    static deleteUser = (_req: Request<{id: UserType['id']}>, res: Response<string | {error: string | undefined}>)=> {
+    static deleteUser = async (_req: Request<{id: UserType['id']}>, res: Response<string | {error: string | undefined}>)=> {
         try {
             const { id } = _req.params
 
@@ -158,7 +158,7 @@ export class UserController {
                 return res.status(422).json({ error: errorMessage.errors[0] })
             }
 
-            const userDeleted = UserService.deleteUser(idValidation.data)
+            const userDeleted = await UserService.deleteUser(idValidation.data)
 
             return res.status(200).json(userDeleted)
         } catch (err) {

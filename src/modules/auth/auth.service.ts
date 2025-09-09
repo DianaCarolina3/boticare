@@ -11,4 +11,8 @@ export class AuthService {
 
         await AuthRepository.createAuthUser(id, data.id, password)
     }
+
+    static async deleteAuthUser (idUser: UserType['id']): Promise<void> {
+        await AuthRepository.deleteAuthUser(idUser)
+    }
 }

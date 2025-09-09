@@ -1,14 +1,10 @@
 //Define y accede a los datos (BD) -> DB
-import users from '../../test/user.json' with { type: 'json' }
 import pool from '../../database/connection.js'
 
-import {UserSchema,
+import {
     type UserType,
     type UserTypeOptionalWithoutId} from "./user.schema.js";
-
-// por archivo json validamos datos (en local)
-// con db lista debe enviarse a la db y solo se valida en el controller el post y put
-const userValidatedIntern: UserType[] = users.map(user => UserSchema.parse(user))
+import {Errors} from "../../utils/errors.js";
 
 export class UserRepository {
 
@@ -118,10 +114,15 @@ export class UserRepository {
         return rows
     }
 
-    static deleteUser(id: UserType['id']): string {
-        const indexUser = userValidatedIntern.findIndex(user => user.id === id)
+    static async deleteUser(id: UserType['id']): Promise<string> {
+        const query = `DELETE FROM users WHERE id=$1`
+        const values = [id]
 
-        userValidatedIntern.splice(indexUser, 1)
-        return 'User deleted'
+        const { rowCount } = await pool.query(query, values)
+        if (rowCount !== 1) {
+            throw new Errors('Error deleting user', 500)
+        }
+
+        return `User ${id} deleted`
     }
 }

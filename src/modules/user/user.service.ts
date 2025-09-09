@@ -5,7 +5,6 @@ import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./use
 import { hashPassword } from "../../utils/hash.js";
 import { Errors } from '../../utils/errors.js'
 
-
 export class UserService {
 
     static async getAllUsers(): Promise<UserType[]> {
@@ -86,12 +85,14 @@ export class UserService {
         return await UserRepository.updateUser(id, body)
     }
 
-    static deleteUser(id: UserType['id']): string {
+    static async deleteUser(id: UserType['id']): Promise<string> {
         const user = UserRepository.findId(id)
 
         if (!user) {
             throw new Errors('User not found', 404)
         }
+
+        await AuthService.deleteAuthUser(id)
 
         return UserRepository.deleteUser(id)
     }
