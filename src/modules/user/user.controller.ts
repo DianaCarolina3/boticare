@@ -11,7 +11,7 @@ import {
     type UserTypeOptionalWithoutId,
     type UserTypeWithoutId
 } from './user.schema.js'
-import { handleError } from "../../utils/errors.js";
+import {Errors} from "../../utils/errors.js";
 
 export class UserController {
 
@@ -39,12 +39,15 @@ export class UserController {
 
             return res.status(200).json(users)
         } catch (err) {
-            const error = handleError(err)
-            if (error.code === 500) {
-                console.log(error)
-                return res.status(error.code).json({ error: error.message })
+            if (err instanceof Errors) {
+                console.error(err)
+                return res.status(err.status).json({
+                    error: err.message
+                })
             }
-            return res.status(error.code).json({ error: error.message})
+            return res.status(500).json({
+                error: "Internal server error"
+            })
         }
     }
 
@@ -64,12 +67,15 @@ export class UserController {
 
             return res.status(200).json(user)
         } catch (err) {
-            const error = handleError(err)
-            if (error.code === 500) {
-                console.log(error)
-                return res.status(error.code).json({ error: error.message })
+            if (err instanceof Errors) {
+                console.error(err)
+                return res.status(err.status).json({
+                    error: err.message
+                })
             }
-            return res.status(error.code).json({ error: error.message})
+            return res.status(500).json({
+                error: "Internal server error"
+            })
         }
     }
 
@@ -93,12 +99,15 @@ export class UserController {
             })
 
         } catch (err) {
-            const error = handleError(err)
-            if (error.code === 500) {
-                console.log(error)
-                return res.status(error.code).json({ error: error.message })
+            if (err instanceof Errors) {
+                console.error(err)
+                return res.status(err.status).json({
+                    error: err.message
+                })
             }
-            return res.status(error.code).json({ error: error.message })
+            return res.status(500).json({
+                error: "Internal server error"
+            })
         }
     }
 
@@ -127,12 +136,15 @@ export class UserController {
             return  res.status(200).json(updatedUser)
 
         } catch (err) {
-            const error = handleError(err)
-            if (error.code === 500) {
-                console.log(error)
-                return res.status(error.code).json({ error: error.message })
+            if (err instanceof Errors) {
+                console.error(err)
+                return res.status(err.status).json({
+                    error: err.message
+                })
             }
-            return res.status(error.code).json({ error: error.message })
+            return res.status(500).json({
+                error: "Internal server error"
+            })
         }
     }
 
@@ -150,12 +162,15 @@ export class UserController {
 
             return res.status(200).json(userDeleted)
         } catch (err) {
-            const error = handleError(err)
-            if (error.code === 500) {
-                console.log(error)
-                return res.status(error.code).json({ error: error.message })
+            if (err instanceof Errors) {
+                console.error(err)
+                return res.status(err.status).json({
+                    error: err.message
+                })
             }
-            return res.status(error.code).json({ error: error.message })
+            return res.status(500).json({
+                error: "Internal server error"
+            })
         }
     }
 

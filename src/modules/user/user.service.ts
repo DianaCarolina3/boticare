@@ -3,6 +3,7 @@ import { UserRepository } from './user.repository.js'
 import { AuthService } from "../auth/auth.service.js";
 import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./user.schema.js";
 import { hashPassword } from "../../utils/hash.js";
+import { Errors } from '../../utils/errors.js'
 
 
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
          const users: UserType[] = await UserRepository.findNameAndLastname(name, lastname)
 
             if (!users || users.length === 0) {
-                throw new Error('Users not found')
+                throw new Errors('Users not found', 404)
             }
 
             return users
@@ -25,7 +26,7 @@ export class UserService {
         const user = await UserRepository.findId(id)
 
         if (user === false) {
-            throw new Error('User not found')
+            throw new Errors('User not found', 404)
         }
 
         return user
@@ -40,7 +41,7 @@ export class UserService {
         // evitar email duplicado en db
         const emailExists = await UserRepository.findEmail(body.email)
         if (emailExists) {
-            throw new Error('Email exists or is in use')
+            throw new Errors('Email exists or is in use', 409)
         }
 
         body.cel = celWithoutSpaces
@@ -61,7 +62,7 @@ export class UserService {
         // buscar id para saber si existe y poder actualizarlo
         const user = await UserRepository.findId(id)
         if (user === false) {
-            throw new Error('User not found')
+            throw new Errors('User not found', 404)
         }
 
         // si encuentra el id hasear contrasena
@@ -79,7 +80,7 @@ export class UserService {
         // verificar si email existe
         const emailExists = await UserRepository.findEmail(body.email)
         if (emailExists) {
-            throw new Error('Email exists or is in use')
+            throw new Errors('Email exists or is in use', 409)
         }
 
         return await UserRepository.updateUser(id, body)
@@ -89,7 +90,7 @@ export class UserService {
         const user = UserRepository.findId(id)
 
         if (!user) {
-            throw new Error('User not found')
+            throw new Errors('User not found', 404)
         }
 
         return UserRepository.deleteUser(id)
