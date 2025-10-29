@@ -1,9 +1,9 @@
-// Implementa la lógica de negocio -> Model
-import { UserRepository } from './user.repository.js'
-import { AuthService } from "../auth/auth.service.js";
-import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./user.schema.js";
-import { hashPassword } from "../../utils/hash.js";
-import { Errors } from '../../utils/errors.js'
+// Implementa la lógica de negocio -> Service
+import { UserRepository } from './user.repository.ts'
+import { AuthService } from "../auth/auth.service.ts";
+import type {UserType, UserTypeOptionalWithoutId, UserTypeWithoutId} from "./user.schema.ts";
+import { hashPassword } from "../../utils/hash.ts";
+import { Errors } from '../../utils/errors.ts'
 
 export class UserService {
 
@@ -35,7 +35,7 @@ export class UserService {
         // Hasear contrasena
         let hashedPassword= await hashPassword(body.password)
         // quitar espacios en cel
-        let celWithoutSpaces = body.cel.replaceAll(" ", "")
+        let celWithoutSpaces = body.cel.split(" ").join("")
 
         // evitar email duplicado en db
         const emailExists = await UserRepository.findEmail(body.email)
@@ -73,7 +73,7 @@ export class UserService {
         // si vienen el cel quitar espacios
         let celWithoutSpaces
         if (body.cel) {
-            celWithoutSpaces = body.cel.replaceAll(" ", "")
+            celWithoutSpaces = body.cel.split(" ").join("")
             body.cel = celWithoutSpaces
         }
         // verificar si email existe

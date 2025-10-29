@@ -1,12 +1,12 @@
 import { Pool } from 'pg'
-import { config } from '../config/config.js'
+import { config } from '../core/config/config.js'
 
 const pool = new Pool({
-    user: config.dbPostgres.user,
-    password: config.dbPostgres.password,
-    host: config.dbPostgres.host,
-    port: Number(config.dbPostgres.port),
-    database: config.dbPostgres.database
+    user: config.postgresql.user,
+    password: config.postgresql.password,
+    host: config.postgresql.host,
+    port: Number(config.postgresql.port),
+    database: config.postgresql.database
 })
 
 function handleConnection() {

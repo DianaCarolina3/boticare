@@ -1,23 +1,24 @@
 @host = localhost
 @port = 3000
+@resource=users
 
 ### GET all users
 GET http://{{host}}:{{port}}/users
 
 ### GET a user by id
-GET http://{{host}}:{{port}}/users/4484329a-fc43-4aa7-8357-c19283bbb885
+GET http://{{host}}:{{port}}/{{resource}}/4484329a-fc43-4aa7-8357-c19283bbb885
 
 ### GET users by query name
-GET http://{{host}}:{{port}}/users?name=MarIa
+GET http://{{host}}:{{port}}/{{resource}}?name=MarIa
 
 ### GET users by query lastname
-GET http://{{host}}:{{port}}/users?lastname=garzon
+GET http://{{host}}:{{port}}/{{resource}}?lastname=garzon
 
 ### GET users by query name and lastname
-GET http://{{host}}:{{port}}/users?name=luIs&lastname=Cordoba
+GET http://{{host}}:{{port}}/{{resource}}?name=luIs&lastname=Cordoba
 
 ### POST a new user
-POST http://{{host}}:{{port}}/users
+POST http://{{host}}:{{port}}/{{resource}}
 Content-Type: application/json
 
 {
@@ -32,16 +33,16 @@ Content-Type: application/json
 }
 
 ### PATCH a user exited
-PATCH http://{{host}}:{{port}}/users/83408984-80d3-4ef2-8d8f-0364bd3845bf
+PATCH http://{{host}}:{{port}}/{{resource}}/83408984-80d3-4ef2-8d8f-0364bd3845bf
 Content-Type: application/json
 
 {
   "name": "Maria Eugenia",
   "lastname": "Duran",
   "password": "3413",
-  "email": "mariaeugeniag@gmail.com",
+  "email": "mariaEugenia@gmail.com",
   "photo": ""
 }
 
 ### DELETE a user exited
-DELETE http://{{host}}:{{port}}/users/11c72523-1f9b-421b-a035-abc71d48da41
+DELETE http://{{host}}:{{port}}/{{resource}}/11c72523-1f9b-421b-a035-abc71d48da41

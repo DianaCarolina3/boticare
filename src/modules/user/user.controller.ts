@@ -1,7 +1,7 @@
 //Maneja las rutas y peticiones/respuestas HTTP	-> Service
-import type { Request, Response} from 'express'
+import type {NextFunction, Request, Response} from 'express'
 import * as z from 'zod'
-import { UserService } from './user.service.js'
+import { UserService } from './user.service.ts'
 import {
     IdSchema,
     NameAndLastnameSchema,
@@ -10,72 +10,57 @@ import {
     type UserType,
     type UserTypeOptionalWithoutId,
     type UserTypeWithoutId
-} from './user.schema.js'
-import {Errors} from "../../utils/errors.js";
+} from './user.schema.ts'
+import * as response from "../../shared/response/ApiResponse.ts"
+import {Errors} from "../../utils/errors.ts";
 
 export class UserController {
 
     static getAllOrByNameAndLastname = async (
         //params url, res body, req body, req query
         _req: Request<{}, {}, {}, {name?: string, lastname?: string}>,
-        res: Response<UserType[] | {error: string | undefined}>) => {
+        res: Response<UserType[] | {error: string | undefined}>, next: NextFunction) => {
         try {
             // Get all
             if (!_req.query.name && !_req.query.lastname) {
                 const users: UserType[] = await  UserService.getAllUsers()
-                return res.status(200).json(users)
+                console.log('getAll')
+                return response.success(_req, res, users, 200)
             }
 
             // Validar name y lastname
             const nameAndLastnameValidation = NameAndLastnameSchema.safeParse(_req.query)
             if (!nameAndLastnameValidation.success) {
                 const errorMessage = z.treeifyError(nameAndLastnameValidation.error)
-                return res.status(422).json({ error: errorMessage.errors[0] })
+                throw new Errors(errorMessage.errors[0] ?? 'Validation error' , 422)
             }
 
             // Get a filter query for name or/and lastname
             const { name, lastname } = nameAndLastnameValidation.data
             const users: UserType[] = await UserService.getByNameAndLastname(name, lastname)
-
-            return res.status(200).json(users)
+            return response.success(_req, res, users, 200)
         } catch (err) {
-            if (err instanceof Errors) {
-                console.error(err)
-                return res.status(err.status).json({
-                    error: err.message
-                })
-            }
-            return res.status(500).json({
-                error: "Internal server error"
-            })
+            next(err)
         }
     }
 
     static getById = async (
         _req: Request<{id: UserType['id']}>,
-        res: Response<UserType[] | boolean | {error: string | undefined}>) => {
+        res: Response<UserType[] | boolean | {error: string | undefined}>, next: NextFunction) => {
         try {
-            const { id } =  _req.params
+            const {id} = _req.params
 
             const idValidation = IdSchema.safeParse(id)
             if (!idValidation.success) {
                 const errorMessage = z.treeifyError(idValidation.error)
-                return res.status(422).json({ error: errorMessage.errors[0] })
+                throw new Errors(errorMessage.errors[0] ?? 'Validation error', 422)
             }
 
             const user: UserType[] | boolean = await UserService.getByIdUser(idValidation.data)
 
-            return res.status(200).json(user)
+            return response.success(_req, res, user, 200)
         } catch (err) {
-            if (err instanceof Errors) {
-                console.error(err)
-                return res.status(err.status).json({
-                    error: err.message
-                })
-            }
-            return res.status(500).json({
-                error: "Internal server error"
-            })
+            next(err)
         }
     }
 
