@@ -1,162 +1,153 @@
 //Maneja las rutas y peticiones/respuestas HTTP	-> Service
-import type {NextFunction, Request, Response} from 'express'
-import * as z from 'zod'
-import { UserService } from './user.service.ts'
+import type { NextFunction, RequestHandler } from 'express';
+import * as z from 'zod';
+import { UserService } from './user.service.js';
 import {
-    IdSchema,
-    NameAndLastnameSchema,
-    UserSchemaToCreate,
-    UserSchemaToUpdate,
-    type UserType,
-    type UserTypeOptionalWithoutId,
-    type UserTypeWithoutId
-} from './user.schema.ts'
-import * as response from "../../shared/response/ApiResponse.ts"
-import {Errors} from "../../utils/errors.ts";
+   idSchema,
+   nameAndLastnameSchema,
+   userCreateSchema,
+   userUpdateSchema,
+   type UserDto,
+   type UserUpdateDto,
+   type UserCreateDto,
+} from './user.schema.js';
+import * as response from '../../shared/response/ApiResponse.js';
 
 export class UserController {
+   constructor(private readonly userService: UserService) {}
 
-    static getAllOrByNameAndLastname = async (
-        //params url, res body, req body, req query
-        _req: Request<{}, {}, {}, {name?: string, lastname?: string}>,
-        res: Response<UserType[] | {error: string | undefined}>, next: NextFunction) => {
-        try {
-            // Get all
-            if (!_req.query.name && !_req.query.lastname) {
-                const users: UserType[] = await  UserService.getAllUsers()
-                console.log('getAll')
-                return response.success(_req, res, users, 200)
-            }
+   getAllOrByNameAndLastname: RequestHandler<
+      //RequestHandler: params, res body, req body, req query
+      Record<string, never>,
+      UserDto[],
+      Record<string, never>,
+      { name?: string; lastname?: string }
+   > = async (_req, res, next: NextFunction) => {
+      try {
+         // Get all
+         if (!_req.query.name && !_req.query.lastname) {
+            const users: UserDto[] = await this.userService.getAllUsers();
+            return response.success(_req, res, users, 200);
+         }
 
-            // Validar name y lastname
-            const nameAndLastnameValidation = NameAndLastnameSchema.safeParse(_req.query)
-            if (!nameAndLastnameValidation.success) {
-                const errorMessage = z.treeifyError(nameAndLastnameValidation.error)
-                throw new Errors(errorMessage.errors[0] ?? 'Validation error' , 422)
-            }
+         // Validar name y lastname
+         const nameAndLastnameValidation = nameAndLastnameSchema.safeParse(_req.query);
+         if (!nameAndLastnameValidation.success) {
+            const errorMessage = z.treeifyError(nameAndLastnameValidation.error);
+            return response.error(_req, res, errorMessage.errors[0] ?? 'Validation error', 422);
+         }
 
-            // Get a filter query for name or/and lastname
-            const { name, lastname } = nameAndLastnameValidation.data
-            const users: UserType[] = await UserService.getByNameAndLastname(name, lastname)
-            return response.success(_req, res, users, 200)
-        } catch (err) {
-            next(err)
-        }
-    }
+         // Get a filter query for name or/and lastname
+         const { name, lastname } = nameAndLastnameValidation.data;
+         const users: UserDto[] = await this.userService.getByNameAndLastname(name, lastname);
+         return response.success(_req, res, users, 200);
+      } catch (err) {
+         next(err);
+      }
+   };
 
-    static getById = async (
-        _req: Request<{id: UserType['id']}>,
-        res: Response<UserType[] | boolean | {error: string | undefined}>, next: NextFunction) => {
-        try {
-            const {id} = _req.params
+   getById: RequestHandler<
+      { id: UserDto['id'] },
+      UserDto[] | boolean,
+      Record<string, never>,
+      Record<string, never>
+   > = async (_req, res, next: NextFunction) => {
+      try {
+         const idValidation = idSchema.safeParse(_req.params.id);
+         if (!idValidation.success) {
+            const errorMessage = z.treeifyError(idValidation.error);
+            return response.error(_req, res, errorMessage.errors[0] ?? 'Validation error', 422);
+         }
 
-            const idValidation = IdSchema.safeParse(id)
-            if (!idValidation.success) {
-                const errorMessage = z.treeifyError(idValidation.error)
-                throw new Errors(errorMessage.errors[0] ?? 'Validation error', 422)
-            }
+         const user: UserDto[] | boolean = await this.userService.getByIdUser(idValidation.data);
 
-            const user: UserType[] | boolean = await UserService.getByIdUser(idValidation.data)
+         return response.success(_req, res, user, 200);
+      } catch (err) {
+         next(err);
+      }
+   };
 
-            return response.success(_req, res, user, 200)
-        } catch (err) {
-            next(err)
-        }
-    }
+   postNewUser: RequestHandler<
+      Record<string, never>,
+      { message: string; id: string },
+      UserCreateDto,
+      Record<string, never>
+   > = async (_req, res, next: NextFunction) => {
+      try {
+         // validar body
+         const bodyValidation = userCreateSchema.safeParse(_req.body);
+         if (!bodyValidation.success) {
+            // 422 request funciona, pero la sintaxis del recurso no es correcta
+            const errorMessage = z.flattenError(bodyValidation.error);
+            return response.error(_req, res, errorMessage.fieldErrors, 422);
+         }
 
-    static postNewUser = async (
-        _req: Request<{}, {}, UserTypeWithoutId>,
-        res: Response<{message: string, id: string} | {error: string | Record<string, string[]>}>) => {
-        try {
-            // validar body
-            const bodyValidation = UserSchemaToCreate.safeParse(_req.body)
-            if (!bodyValidation.success) {
-                // 422 request funciona, pero la sintaxis del recurso no es correcta
-                const errorMessage = z.flattenError(bodyValidation.error)
-                return res.status(422).json({ error: errorMessage.fieldErrors })
-            }
+         const newUser: UserDto = await this.userService.postNewUser(bodyValidation.data);
+         return response.success(
+            _req,
+            res,
+            {
+               message: 'User created successfully',
+               id: newUser.id,
+            },
+            200,
+         );
+      } catch (err) {
+         next(err);
+      }
+   };
 
-            const newUser: UserType = await UserService.postNewUser(bodyValidation.data)
+   patchUser: RequestHandler<
+      { id: UserDto['id'] },
+      UserUpdateDto[],
+      UserUpdateDto,
+      Record<string, never>
+   > = async (_req, res, next: NextFunction) => {
+      // Record<K, T> objeto clave, valor
+      try {
+         // validar id
+         const idValidation = idSchema.safeParse(_req.params.id);
+         if (!idValidation.success) {
+            const errorMessage = z.treeifyError(idValidation.error);
+            return response.error(_req, res, errorMessage.errors[0] ?? 'Validation error', 422);
+         }
 
-            return res.status(200).json({
-                message: 'User created successfully',
-                id: newUser.id
-            })
+         // validar body
+         const bodyValidation = userUpdateSchema.safeParse(_req.body);
+         if (!bodyValidation.success) {
+            const errorMessage = z.flattenError(bodyValidation.error);
+            return response.error(_req, res, errorMessage.fieldErrors, 422);
+         }
 
-        } catch (err) {
-            if (err instanceof Errors) {
-                console.error(err)
-                return res.status(err.status).json({
-                    error: err.message
-                })
-            }
-            return res.status(500).json({
-                error: "Internal server error"
-            })
-        }
-    }
+         const updatedUser: UserUpdateDto[] = await this.userService.patchUser(
+            idValidation.data,
+            bodyValidation.data,
+         );
 
-    static patchUser = async (_req: Request<{id: UserType['id']}, {}, UserTypeOptionalWithoutId>,
-                     res: Response<UserTypeOptionalWithoutId[] | {error: string | Record<string, string[]> | undefined}>) => {
-        // Record<K, T> objeto clave, valor
-        try {
-            const { id } = _req.params
+         return res.status(200).json(updatedUser);
+      } catch (err) {
+         next(err);
+      }
+   };
 
-            // validar id
-            const idValidation = IdSchema.safeParse(id)
-            if (!idValidation.success) {
-                const errorMessage = z.treeifyError(idValidation.error)
-                return res.status(422).json({ error: errorMessage.errors[0] })
-            }
+   deleteUser: RequestHandler<
+      { id: UserDto['id'] },
+      string,
+      Record<string, never>,
+      Record<string, never>
+   > = async (_req, res, next: NextFunction) => {
+      try {
+         const idValidation = idSchema.safeParse(_req.params.id);
+         if (!idValidation.success) {
+            const errorMessage = z.treeifyError(idValidation.error);
+            return response.error(_req, res, errorMessage.errors[0] ?? 'Validation error', 422);
+         }
 
-            // validar body
-            const bodyValidation = UserSchemaToUpdate.safeParse(_req.body)
-            if (!bodyValidation.success) {
-                const errorMessage = z.flattenError(bodyValidation.error)
-                return res.status(422).json({ error: errorMessage.fieldErrors })
-            }
+         const userDeleted = await this.userService.deleteUser(idValidation.data);
 
-            const updatedUser: UserTypeOptionalWithoutId[] = await UserService.patchUser(idValidation.data, bodyValidation.data)
-
-            return  res.status(200).json(updatedUser)
-
-        } catch (err) {
-            if (err instanceof Errors) {
-                console.error(err)
-                return res.status(err.status).json({
-                    error: err.message
-                })
-            }
-            return res.status(500).json({
-                error: "Internal server error"
-            })
-        }
-    }
-
-    static deleteUser = async (_req: Request<{id: UserType['id']}>, res: Response<string | {error: string | undefined}>)=> {
-        try {
-            const { id } = _req.params
-
-            const idValidation = IdSchema.safeParse(id)
-            if(!idValidation.success) {
-                const errorMessage = z.treeifyError(idValidation.error)
-                return res.status(422).json({ error: errorMessage.errors[0] })
-            }
-
-            const userDeleted = await UserService.deleteUser(idValidation.data)
-
-            return res.status(200).json(userDeleted)
-        } catch (err) {
-            if (err instanceof Errors) {
-                console.error(err)
-                return res.status(err.status).json({
-                    error: err.message
-                })
-            }
-            return res.status(500).json({
-                error: "Internal server error"
-            })
-        }
-    }
-
+         return res.status(200).json(userDeleted);
+      } catch (err) {
+         next(err);
+      }
+   };
 }

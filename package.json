@@ -1,35 +1,47 @@
 {
-  "name": "boticare",
-  "version": "1.0.0",
-  "description": "Repaso de proyecto en typescript y express",
-  "keywords": [
-    "typescript",
-    "express"
-  ],
-  "license": "Apache-2.0",
-  "author": "Diana Campuzano",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "dev": "nodemon",
-    "start": "cross-env NODE_ENV=production node dist/app.js"
-  },
-  "dependencies": {
-    "bcrypt": "6.0.0",
-    "cross-env": "10.1.0",
-    "dotenv": "17.2.1",
-    "express": "5.1.0",
-    "pg": "8.16.3",
-    "zod": "4.0.17"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "6.0.0",
-    "@types/express": "5.0.3",
-    "@types/node": "24.3.0",
-    "@types/pg": "8.15.5",
-    "nodemon": "3.1.10",
-    "ts-node": "10.9.2",
-    "typescript": "5.9.2"
-  }
+   "name": "recipes",
+   "version": "1.0.0",
+   "description": "Proyecto en typescript y express",
+   "keywords": [
+      "typescript",
+      "express"
+   ],
+   "license": "Apache-2.0",
+   "author": "Diana Campuzano",
+   "type": "module",
+   "main": "index.js",
+   "scripts": {
+      "build": "tsc",
+      "dev": "tsx watch src/app.ts",
+      "start": "cross-env NODE_ENV=production node dist/app.js",
+      "prepare": "husky",
+      "prettier": "prettier . --write",
+      "lint": "eslint . --fix",
+      "fix": "npm run prettier && npm run lint"
+   },
+   "dependencies": {
+      "argon2": "0.44.0",
+      "cross-env": "10.1.0",
+      "dotenv": "17.2.1",
+      "express": "5.1.0",
+      "pg": "8.16.3",
+      "zod": "4.0.17"
+   },
+   "devDependencies": {
+      "@eslint/js": "^9.38.0",
+      "@types/express": "5.0.3",
+      "@types/node": "24.3.0",
+      "@types/pg": "8.15.5",
+      "@typescript-eslint/eslint-plugin": "^8.46.2",
+      "@typescript-eslint/parser": "^8.46.2",
+      "eslint": "^9.38.0",
+      "eslint-config-prettier": "^10.1.8",
+      "eslint-plugin-prettier": "^5.5.4",
+      "globals": "^16.4.0",
+      "husky": "9.1.7",
+      "prettier": "3.6.2",
+      "tsx": "4.20.6",
+      "typescript": "5.9.2",
+      "typescript-eslint": "^8.46.2"
+   }
 }

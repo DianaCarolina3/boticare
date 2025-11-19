@@ -3,7 +3,7 @@
 @resource=users
 
 ### GET all users
-GET http://{{host}}:{{port}}/users
+GET http://{{host}}:{{port}}/{{resource}}/
 
 ### GET a user by id
 GET http://{{host}}:{{port}}/{{resource}}/4484329a-fc43-4aa7-8357-c19283bbb885

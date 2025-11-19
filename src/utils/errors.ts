@@ -1,8 +1,8 @@
 export class Errors extends Error {
-    status: number
+   status: number;
 
-    constructor(message: string, status = 500) {
-        super(message)
-        this.status = status
-    }
+   constructor(message: string, status = 500) {
+      super(message);
+      this.status = status;
+   }
 }

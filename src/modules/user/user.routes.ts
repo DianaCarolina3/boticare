@@ -1,15 +1,20 @@
-import { Router } from "express"
-import { UserController } from './user.controller.ts'
-
+import { Router } from 'express';
+import { UserController } from './user.controller.js';
+import { UserService } from './user.service.js';
+import { UserRepository } from './user.repository.js';
 
 export const createUserRouter: () => Router = (): Router => {
-    const router = Router()
+   const router = Router();
 
-    router.get('/', UserController.getAllOrByNameAndLastname)
-    router.get('/:id', UserController.getById)
-    router.post('/', UserController.postNewUser)
-    router.patch('/:id', UserController.patchUser)
-    router.delete('/:id', UserController.deleteUser)
+   const userRepository = new UserRepository();
+   const userService = new UserService(userRepository);
+   const userController = new UserController(userService);
 
-    return router
-}
+   router.get('/', userController.getAllOrByNameAndLastname);
+   router.get('/:id', userController.getById);
+   router.post('/', userController.postNewUser);
+   router.patch('/:id', userController.patchUser);
+   router.delete('/:id', userController.deleteUser);
+
+   return router;
+};
