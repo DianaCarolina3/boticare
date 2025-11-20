@@ -1,3 +1,3 @@
-# boticare
+# Recipe
 
 Personal proyect

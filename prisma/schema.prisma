@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String    @id @default(uuid()) @db.Char(36)
+  name      String    @db.VarChar(50)
+  lastname  String    @db.VarChar(50)
+  email     String    @unique @db.VarChar(255)
+  cel       String?   @db.VarChar(20)
+  birthdate DateTime?
+  photo     String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  auth      Auth?
+  recipes   Recipe[]
+}
+
+model Auth {
+  id        String    @id @default(uuid()) @db.Char(36)
+  userId    String    @unique @db.Char(36)
+  password  String    @db.Text
+  role      Json      @default("[\"user\"]")
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Recipe {
+  id          String   @id @default(uuid()) @db.Char(36)
+  title       String   @db.VarChar(200)
+  description String?  @db.Text
+  prepTime    Int?     //minutos
+  cookTime    Int?     //minutos
+  servings    Int?     //porciones
+  difficulty  String?  @db.VarChar(20) //facil, medio, dificil
+  image       String?  @db.LongText    //base64 o url
+
+  authorId    String   @db.Char(36)
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  categoryId  String   @db.Char(36)
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  ingredients Ingredient[]
+  steps       Step[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // con los indices buscamos mas rapido, como el indice de un libro
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([title])
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Char(36)
+  name      String   @unique @db.VarChar(100)
+  recipes   Recipe[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ingredient {
+  id        String   @id @default(uuid()) @db.Char(36)
+  name      String   @db.VarChar(100)
+  quantity  String?  @db.VarChar(50)
+  unit      String?  @db.VarChar(50)
+  recipeId  String   @db.Char(36)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model Step {
+  id          String   @id @default(uuid()) @db.Char(36)
+  order       Int
+  description String   @db.Text
+  recipeId    String   @db.Char(36)
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}

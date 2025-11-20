@@ -1,5 +1,5 @@
 {
-   "name": "recipes",
+   "name": "Recipes",
    "version": "1.0.0",
    "description": "Proyecto en typescript y express",
    "keywords": [
@@ -20,6 +20,8 @@
       "fix": "npm run prettier && npm run lint"
    },
    "dependencies": {
+      "@prisma/adapter-mariadb": "7.0.0",
+      "@prisma/client": "7.0.0",
       "argon2": "0.44.0",
       "cross-env": "10.1.0",
       "dotenv": "17.2.1",
@@ -40,6 +42,7 @@
       "globals": "^16.4.0",
       "husky": "9.1.7",
       "prettier": "3.6.2",
+      "prisma": "7.0.0",
       "tsx": "4.20.6",
       "typescript": "5.9.2",
       "typescript-eslint": "^8.46.2"
