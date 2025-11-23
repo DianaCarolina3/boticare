@@ -1,5 +1,5 @@
 //Define y accede a los datos (BD) -> DB
-import pool from '../../database/connection.js';
+// import pool from '../../database/connection.js';
 
 import type { UserDto, UserUpdateDto } from './user.schema.js';
 import { Errors } from '../../utils/errors.js';
@@ -81,13 +81,13 @@ export class UserRepository {
 
    async updateUser(id: UserDto['id'], body: UserUpdateDto): Promise<UserDto[]> {
       // coalesce: toma el primer valor no nulo, si es nulo, conversa el actual
-      const query = `UPDATE users SET 
+      const query = `UPDATE users SET
                                         name = COALESCE($1, name),
                                         lastname = COALESCE($2, lastname),
                                         email = COALESCE($3, name),
                                         cel = COALESCE($4, cel),
                                         photo = COALESCE($5, photo)
-                                    WHERE id = $6 
+                                    WHERE id = $6
                                     RETURNING name, lastname, email, cel, photo`;
       const values = [
          body.name ?? null,

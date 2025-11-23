@@ -28,13 +28,17 @@ export const userSchema = z.object({
    photo: photoSchemaUrl,
 });
 
-export const idSchema = z.uuid();
+export const idSchema = z
+   .object({
+      id: z.uuid(),
+   })
+   .refine((data) => data.id, { message: 'Id is required' });
 
 // pick solo usa name y lastname del userSchema
-export const nameAndLastnameSchema = userSchema.pick({
-   name: true,
-   lastname: true,
-});
+export const nameAndLastnameSchema = userSchema
+   .pick({ name: true, lastname: true })
+   .partial()
+   .refine((data) => data.name || data.lastname, { message: 'Name or lastname is required' });
 
 export const userCreateSchema = userSchema.omit({
    id: true,

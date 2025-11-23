@@ -6,7 +6,7 @@
 GET http://{{host}}:{{port}}/{{resource}}/
 
 ### GET a user by id
-GET http://{{host}}:{{port}}/{{resource}}/4484329a-fc43-4aa7-8357-c19283bbb885
+GET http://{{host}}:{{port}}/{{resource}}/4484329a-fc43-4aa7-8357-c19283bb
 
 ### GET users by query name
 GET http://{{host}}:{{port}}/{{resource}}?name=MarIa
@@ -28,6 +28,7 @@ Content-Type: application/json
   "lastname": "Garzon",
   "password": "12232",
   "cel": "3156768454",
+  "birthdate": "2000-12-31",
   "email": "jimeneztadeedd@agmail.com",
   "photo": ""
 }

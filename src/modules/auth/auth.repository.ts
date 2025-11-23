@@ -1,4 +1,4 @@
-import pool from '../../database/connection.js';
+// import pool from '../../database/connection.js';
 import type { UserDto } from '../user/user.schema.js';
 import { Errors } from '../../utils/errors.js';
 
