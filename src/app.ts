@@ -1,20 +1,27 @@
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import router from './routes.js';
+import morgan from 'morgan';
 import { config } from './core/config/config.js';
 import { handlerError } from './shared/response/ApiResponse.js';
 import { connectDatabase } from './core/config/database.js';
+import pkg from '../package.json' with { type: 'json' };
 
 const app = express();
 
 app.use(express.json());
 app.disable('x-powered-by');
+app.use(morgan('dev'));
+app.set('pkg', pkg);
 
 app.use('/', router);
 
 app.get('/', (_req: Request, res: Response) => {
    res.status(200).json({
-      hello: 'Recipes',
+      name: app.get('pkg').name,
+      author: app.get('pkg').author,
+      description: app.get('pkg').description,
+      version: app.get('pkg').version,
    });
 });
 

@@ -1,12 +1,15 @@
 // Implementa la lógica de negocio -> Service
 import { UserRepository } from './user.repository.js';
-// import { AuthService } from '../auth/auth.service.js';
+import { AuthService } from '../auth/auth.service.js';
 import type { UserDto, UserUpdateDto, UserCreateDto, UserResponseDto } from './user.schema.js';
 import { hashPassword } from '../../utils/hash.js';
 import { Errors } from '../../utils/errors.js';
 
 export class UserService {
-   constructor(private readonly userRepository: UserRepository) {}
+   constructor(
+      private readonly userRepository: UserRepository,
+      private readonly authService: AuthService,
+   ) {}
 
    async getAllUsers(): Promise<UserResponseDto[]> {
       return await this.userRepository.findAll();
@@ -59,10 +62,16 @@ export class UserService {
          body.birthdate = undefined;
       }
 
-      let { password: _password, ...dataWithoutPassword } = body;
+      let { password, ...dataWithoutPassword } = body;
 
       const user = await this.userRepository.create(dataWithoutPassword);
-      // await AuthService.createAuthUser(user, password);
+
+      const authData = {
+         password: password,
+         userId: user.id,
+      };
+
+      await this.authService.register(authData);
 
       return user;
    }

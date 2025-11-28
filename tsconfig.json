@@ -46,6 +46,6 @@
       "forceConsistentCasingInFileNames": true,
       "resolveJsonModule": true
    },
-   "include": ["src/**/*.ts", "prisma.config.ts", "src/shared/types"],
+   "include": ["src/**/*.ts", "prisma.config.ts", "src/shared/types", "prisma/seed.ts"],
    "exclude": ["node_modules", "dist"]
 }

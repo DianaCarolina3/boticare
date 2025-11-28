@@ -26,7 +26,7 @@ Content-Type: application/json
   "id": "550e8400-e29b-41d4-a716-446655440023",
   "name": "henry",
   "lastname": "Ochoa",
-  "email": "henry@agmail.commer",
+  "email": "henry@agmail.commerm",
   "password": "12232",
   "birthdate": "2000-12-31",
   "photo": ""

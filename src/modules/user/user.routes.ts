@@ -9,12 +9,19 @@ import {
    userCreateSchema,
    userUpdateSchema,
 } from './user.schema.js';
+import { AuthService } from '../auth/auth.service.js';
+import { AuthRepository } from '../auth/auth.repository.js';
 
-export const createUserRouter: () => Router = (): Router => {
+export const createUserRouter = () => {
    const router = Router();
 
+   // Dependencias de Auth
+   const authRepository = new AuthRepository();
+   const authService = new AuthService(authRepository);
+
+   // Dependencias de User
    const userRepository = new UserRepository();
-   const userService = new UserService(userRepository);
+   const userService = new UserService(userRepository, authService);
    const userController = new UserController(userService);
 
    router.get(
@@ -23,7 +30,7 @@ export const createUserRouter: () => Router = (): Router => {
       userController.getAllOrByNameAndLastname,
    );
    router.get('/:id', validate(idSchema, 'params'), userController.getById);
-   router.post('/', validate(userCreateSchema, 'body'), userController.postNewUser);
+   router.post('/register', validate(userCreateSchema, 'body'), userController.postNewUser);
    router.patch(
       '/:id',
       validate(idSchema, 'params'),

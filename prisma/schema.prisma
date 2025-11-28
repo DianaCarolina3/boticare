@@ -31,11 +31,23 @@ model Auth {
   id        String    @id @default(uuid()) @db.Char(36)
   userId    String    @unique @db.Char(36)
   password  String    @db.Text
-  role      Json      @default("[\"user\"]")
+  roleId    String    @db.VarChar(36)
+  role      Role      @relation(fields: [roleId], references: [id])
   lastLogin DateTime?
   createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id   String   @id @default(uuid()) @db.Char(36)
+  name RoleName @unique
+  Auth Auth[]
+}
+
+enum RoleName {
+  USER
+  ADMIN
 }
 
 model Recipe {

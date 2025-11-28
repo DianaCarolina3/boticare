@@ -9,7 +9,7 @@ const adapter = new PrismaMariaDb({
    user: config.mysql.user as string,
    password: config.mysql.password as string,
    database: config.mysql.name as string,
-   connectionLimit: 5,
+   connectionLimit: 10,
    connectTimeout: 10000,
 });
 
@@ -33,27 +33,41 @@ if (process.env.NODE_ENV !== 'production') {
 
 export const connectDatabase = async () => {
    try {
-      await prisma.$connect();
-      console.log('[DB Connected] Successfully connected to MySQL');
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('[DB Ready] Successfully connected to MySQL');
    } catch (error) {
-      console.error('[Error DB Connection]:', error);
+      console.error('[Error DB Connection]: ', error);
       process.exit(1);
    }
 };
 
-export const disconnectDatabase = async () => {
-   await prisma.$disconnect();
-   console.log('[DB Disconnected] MySQL connection closed');
-};
+/*
+ Prisma recomienda dejar manejar las conexiones automaticas
+*/
 
-process.on('SIGINT', async () => {
-   await disconnectDatabase();
-   process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-   await disconnectDatabase();
-   process.exit(0);
-});
+// export const connectDatabase = async () => {
+//    try {
+//       await prisma.$connect();
+//       console.log('[DB Connected] Successfully connected to MySQL');
+//    } catch (error) {
+//       console.error('[Error DB Connection]: ', error);
+//       process.exit(1);
+//    }
+// };
+//
+// export const disconnectDatabase = async () => {
+//    await prisma.$disconnect();
+//    console.log('[DB Disconnected] MySQL connection closed');
+// };
+//
+// process.on('SIGINT', async () => {
+//    await disconnectDatabase();
+//    process.exit(0);
+// });
+//
+// process.on('SIGTERM', async () => {
+//    await disconnectDatabase();
+//    process.exit(0);
+// });
 
 export { prisma };

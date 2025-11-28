@@ -1,24 +1,44 @@
 import { AuthRepository } from './auth.repository.js';
-import type { UserDto, UserUpdateDto } from '../user/user.schema.js';
+import type { AuthRegisterDto } from './auth.schema.js';
+import { Errors } from '../../utils/errors.js';
 
 export class AuthService {
-   static async createAuthUser(data: UserDto, password: string): Promise<void> {
-      let id = crypto.randomUUID();
+   constructor(private readonly authRepository: AuthRepository) {}
 
-      if (!data.id && password) {
+   async register(data: AuthRegisterDto) {
+      const { password, userId, roleId } = data;
+
+      if (!userId && !password) {
          throw new Error('Id and password is required');
       }
 
-      await AuthRepository.createAuthUser(id, data.id, password);
-   }
-
-   static async deleteAuthUser(idUser: UserDto['id']): Promise<void> {
-      await AuthRepository.deleteAuthUser(idUser);
-   }
-
-   static async updateAuthUser(idUser: UserDto['id'], body: UserUpdateDto): Promise<void> {
-      if (idUser && body.password) {
-         await AuthRepository.updateAuthUser(idUser, body.password);
+      let roleIdToUse = roleId;
+      // si no viene un rol definido
+      if (!roleIdToUse) {
+         // entonces definir rol
+         const defaultRole = await this.authRepository.defineRoleUser();
+         if (!defaultRole) {
+            throw new Errors('Default role not found');
+         }
+         roleIdToUse = defaultRole.id;
       }
+
+      const dataAuth = {
+         password,
+         userId,
+         roleId: roleIdToUse,
+      };
+
+      await this.authRepository.create(dataAuth);
    }
+
+   //  async deleteAuthUser(idUser: UserDto['id']): Promise<void> {
+   //    await AuthRepository.deleteAuthUser(idUser);
+   // }
+   //
+   //  async updateAuthUser(idUser: UserDto['id'], body: UserUpdateDto): Promise<void> {
+   //    if (idUser && body.password) {
+   //       await AuthRepository.updateAuthUser(idUser, body.password);
+   //    }
+   // }
 }
