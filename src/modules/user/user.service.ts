@@ -49,7 +49,15 @@ export class UserService {
 
       body.cel = celWithoutSpaces;
       body.password = hashedPassword;
-      body.birthdate = new Date(body.birthdate!).toISOString();
+      if (body.birthdate) {
+         const date = new Date(body.birthdate);
+         if (isNaN(date.getTime())) {
+            throw new Errors('Birthdate format is invalid', 400);
+         }
+         body.birthdate = date.toISOString();
+      } else {
+         body.birthdate = undefined;
+      }
 
       let { password: _password, ...dataWithoutPassword } = body;
 

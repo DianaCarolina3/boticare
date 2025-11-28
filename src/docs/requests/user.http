@@ -46,4 +46,4 @@ Content-Type: application/json
 }
 
 ### DELETE a user exited
-DELETE http://{{host}}:{{port}}/{{resource}}/56ad7474-ca3d-11f0-a8e5-8a99611a5f90
+DELETE http://{{host}}:{{port}}/{{resource}}/13567d7f-b1ca-4198-a0ec-e02df4a1f59a
