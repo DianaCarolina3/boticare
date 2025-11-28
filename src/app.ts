@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import router from './routes.js';
 import { config } from './core/config/config.js';
 import { handlerError } from './shared/response/ApiResponse.js';
+import { connectDatabase } from './core/config/database.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use((_req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.use(handlerError);
+connectDatabase();
 
 app.listen(config.api.port, (): void => {
    console.log(`Server listening on the http://${config.api.host}:${config.api.port}`);

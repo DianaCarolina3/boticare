@@ -1,9 +1,13 @@
 import dotenv from 'dotenv';
-import * as process from 'node:process';
+import path from 'node:path';
+
+const envFile = process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev';
 
 dotenv.config({
-   path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
+   path: path.resolve(process.cwd(), envFile),
 });
+
+console.log(`[ENV] Loaded: ${envFile}`);
 
 export const config = {
    api: {

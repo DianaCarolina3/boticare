@@ -1,22 +1,22 @@
 // Implementa la lógica de negocio -> Service
 import { UserRepository } from './user.repository.js';
-import { AuthService } from '../auth/auth.service.js';
-import type { UserDto, UserUpdateDto, UserCreateDto } from './user.schema.js';
+// import { AuthService } from '../auth/auth.service.js';
+import type { UserDto, UserUpdateDto, UserCreateDto, UserResponseDto } from './user.schema.js';
 import { hashPassword } from '../../utils/hash.js';
 import { Errors } from '../../utils/errors.js';
 
 export class UserService {
    constructor(private readonly userRepository: UserRepository) {}
 
-   async getAllUsers(): Promise<UserDto[]> {
-      return await this.userRepository.find();
+   async getAllUsers(): Promise<UserResponseDto[]> {
+      return await this.userRepository.findAll();
    }
 
    async getByNameAndLastname(
       name?: UserDto['name'],
       lastname?: UserDto['lastname'],
-   ): Promise<UserDto[]> {
-      const users: UserDto[] = await this.userRepository.findNameAndLastname(name, lastname);
+   ): Promise<UserResponseDto[]> {
+      const users = await this.userRepository.findNameAndLastname(name, lastname);
 
       if (!users || users.length === 0) {
          throw new Errors('Users not found', 404);
@@ -25,8 +25,8 @@ export class UserService {
       return users;
    }
 
-   async getByIdUser(id: UserDto['id']): Promise<UserDto[] | boolean> {
-      const user = await this.userRepository.findId(id);
+   async getByIdUser(id: UserDto['id']): Promise<UserResponseDto | boolean> {
+      const user = await this.userRepository.findById(id);
 
       if (user === false) {
          throw new Errors('User not found', 404);
@@ -35,11 +35,11 @@ export class UserService {
       return user;
    }
 
-   async postNewUser(body: UserCreateDto): Promise<UserDto> {
-      // Hasear contrasena
+   async postNewUser(body: UserCreateDto): Promise<UserResponseDto> {
+      // Hasear contraseña
       let hashedPassword = await hashPassword(body.password);
       // quitar espacios en cel
-      let celWithoutSpaces = body.cel.split(' ').join('');
+      let celWithoutSpaces = body.cel?.split(' ').join('');
 
       // evitar email duplicado en db
       const emailExists = await this.userRepository.findEmail(body.email);
@@ -49,21 +49,19 @@ export class UserService {
 
       body.cel = celWithoutSpaces;
       body.password = hashedPassword;
+      body.birthdate = new Date(body.birthdate!).toISOString();
 
-      let data = {
-         id: crypto.randomUUID(),
-         ...body,
-      };
+      let { password: _password, ...dataWithoutPassword } = body;
 
-      const user = await this.userRepository.createNewUser(data);
-      await AuthService.createAuthUser(user, data.password);
+      const user = await this.userRepository.create(dataWithoutPassword);
+      // await AuthService.createAuthUser(user, password);
 
       return user;
    }
 
-   async patchUser(id: UserDto['id'], body: UserUpdateDto): Promise<UserDto[]> {
+   async patchUser(id: UserDto['id'], body: UserUpdateDto): Promise<UserResponseDto> {
       // buscar id para saber si existe y poder actualizarlo
-      const user = await this.userRepository.findId(id);
+      const user = await this.userRepository.findById(id);
       if (user === false) {
          throw new Errors('User not found', 404);
       }
@@ -74,7 +72,10 @@ export class UserService {
          hashedPassword = await hashPassword(body.password);
          body.password = hashedPassword;
       }
-      // si vienen el cel quitar espacios
+      // verificar si la contraseña es la misma o es una nueva
+      // en auth
+
+      // si viene el cel quitar espacios
       let celWithoutSpaces;
       if (body.cel) {
          celWithoutSpaces = body.cel.split(' ').join('');
@@ -87,20 +88,23 @@ export class UserService {
       }
 
       // actualizar password en auth
-      await AuthService.updateAuthUser(id, body);
+      // await AuthService.updateAuthUser(id, body);
 
       return await this.userRepository.updateUser(id, body);
    }
 
-   async deleteUser(id: UserDto['id']): Promise<string> {
-      const user = this.userRepository.findId(id);
+   async deleteUser(id: UserDto['id']): Promise<string | void> {
+      const user = await this.userRepository.findById(id);
 
-      if (!user) {
+      if (user === false) {
          throw new Errors('User not found', 404);
       }
 
-      await AuthService.deleteAuthUser(id);
+      // await AuthService.deleteAuthUser(id);
 
-      return this.userRepository.deleteUser(id);
+      const result = await this.userRepository.delete(id);
+      if (result) {
+         return `User ${id} deleted`;
+      }
    }
 }

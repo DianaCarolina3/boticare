@@ -1,20 +1,5 @@
 import * as z from 'zod';
 
-// la valida, si es null o '' que la convierta a undefined
-const photoSchemaUrl = z.preprocess(
-   (value) => {
-      if (value === '' || value === null) return undefined;
-      return value;
-   },
-   z
-      .url({
-         error: 'Must be URL image or a secure version of HTTP',
-         protocol: /^https$/,
-      })
-      .trim()
-      .default('https://cdn-icons-png.flaticon.com/512/12225/12225881.png'),
-);
-
 export const userSchema = z.object({
    id: z.uuid(),
    // trim quita espacios en blanco al inicio y al final, no en el medio
@@ -23,10 +8,22 @@ export const userSchema = z.object({
    // puede aceptar string o number y si number lo pasa a string
    email: z.email().transform((value) => value.toLowerCase()),
    password: z.string({ error: 'Must be a string' }).trim().min(4, 'Required minimum 4 characters'),
-   cel: z.union([z.string(), z.number()]).transform((value) => String(value).trim()),
-   birthdate: z.iso.date(),
-   photo: photoSchemaUrl,
+   cel: z
+      .union([z.string(), z.number()])
+      .transform((value) => String(value).trim())
+      .optional(),
+   birthdate: z.iso.date().optional(),
+   photo: z
+      .url({
+         error: 'Must be URL image or a secure version of HTTP',
+         protocol: /^https$/,
+      })
+      .trim()
+      .default('https://cdn-icons-png.flaticon.com/512/12225/12225881.png')
+      .optional(),
 });
+
+// input = lo que recibo del cliente
 
 export const idSchema = z
    .object({
@@ -56,5 +53,22 @@ export type UserCreateDto = z.infer<typeof userCreateSchema>;
 
 export type UserUpdateDto = z.infer<typeof userUpdateSchema>;
 
+// output = lo que devuelvo al cliente
+export const userResponseSchema = z.object({
+   id: z.uuid(),
+   name: z.string(),
+   lastname: z.string(),
+   email: z.email(),
+   cel: z.string().nullable(),
+   birthdate: z.date().nullable(),
+   photo: z.string().nullable(),
+   createdAt: z.date(),
+   updatedAt: z.date(),
+});
+
+export type UserResponseDto = z.infer<typeof userResponseSchema>;
+
 // parse = para validacion interna de datos, detiene ejecucion si error y lanza throw
 // safeParse = para validar datos externos sin expulsion, maneja el error y devuelve objeto
+
+// filtros y busquedas (si aplica)

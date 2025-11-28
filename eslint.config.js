@@ -60,6 +60,7 @@ export default [
                varsIgnorePattern: '^_',
             },
          ],
+         '@typescript-eslint/no-explicit-any': 'off',
       },
    },
 ];

@@ -1,116 +1,48 @@
 //Define y accede a los datos (BD) -> DB
-// import pool from '../../database/connection.js';
+import type { UserDto, UserResponseDto, UserUpdateDto } from './user.schema.js';
+import { BaseRepository } from '../../shared/repositories/BaseRepository.js';
+import { prisma } from '../../core/config/database.js';
 
-import type { UserDto, UserUpdateDto } from './user.schema.js';
-import { Errors } from '../../utils/errors.js';
-
-export class UserRepository {
-   async find(): Promise<UserDto[]> {
-      const query = `SELECT id, name, lastname, email, cel, photo FROM users`;
-      const { rows } = await pool.query(query);
-      return rows;
+export class UserRepository extends BaseRepository<UserResponseDto> {
+   constructor() {
+      super(prisma, prisma.user);
    }
 
-   async findNameAndLastname(name?: string, lastname?: string): Promise<UserDto[]> {
-      if (name && lastname) {
-         const query = `SELECT id, name, lastname, email, cel, photo FROM users
-                                WHERE LOWER(name) = $1 AND LOWER(lastname) = $2`;
-         const values = [name.toLowerCase(), lastname.toLowerCase()];
-
-         const { rows } = await pool.query(query, values);
-         return rows;
-      }
+   async findNameAndLastname(name?: string, lastname?: string): Promise<UserResponseDto[]> {
+      const where: any = {};
 
       if (name) {
-         const query = `SELECT id, name, lastname, email, cel, photo FROM users
-                                WHERE LOWER(name) = $1`;
-         const values = [name.toLowerCase()];
-
-         const { rows } = await pool.query(query, values);
-         return rows;
+         where.name = { contains: name };
       }
-
       if (lastname) {
-         const query = `SELECT id, name, lastname, email, cel, photo FROM users
-                                WHERE LOWER(lastname) = $1`;
-         const values = [lastname.toLowerCase()];
-
-         const { rows } = await pool.query(query, values);
-         return rows;
+         where.lastname = { contains: lastname };
       }
 
-      return await UserRepository.find();
-   }
-
-   async findId(id: UserDto['id']): Promise<UserDto[] | boolean> {
-      const query = `SELECT id, name, lastname, email, cel, photo FROM users
-                            WHERE id = $1`;
-      const values = [id];
-
-      const { rows } = await pool.query(query, values);
-
-      if (rows.length === 0) {
-         return false;
+      const users = await this.modelDelegate.findMany({
+         where,
+      });
+      if (!users || users.length === 0) {
+         return this.findAll();
       }
 
-      return rows;
+      return users;
    }
 
-   async findEmail(email: string | undefined): Promise<boolean | void> {
-      const query = `SELECT id FROM users WHERE email = $1`;
-      const values = [email];
+   async findEmail(email: string | undefined): Promise<boolean | null> {
+      if (!email) return null;
 
-      const { rows } = await pool.query(query, values);
-      if (rows.length === 0) {
-         return false;
-      }
-      if (rows[0].id) {
-         return true;
-      }
+      const user = await this.modelDelegate.findUnique({
+         where: { email: email },
+         select: { id: true },
+      });
+
+      return user ? true : false;
    }
 
-   async createNewUser(body: UserDto): Promise<UserDto> {
-      const query = `INSERT INTO users(id, name, lastname, email, cel, photo) 
-                            VALUES($1, $2, $3, $4, $5, $6) 
-                            RETURNING *`;
-      const values = [body.id, body.name, body.lastname, body.email, body.cel, body.photo];
-
-      const { rows } = await pool.query(query, values);
-      return rows[0];
-   }
-
-   async updateUser(id: UserDto['id'], body: UserUpdateDto): Promise<UserDto[]> {
-      // coalesce: toma el primer valor no nulo, si es nulo, conversa el actual
-      const query = `UPDATE users SET
-                                        name = COALESCE($1, name),
-                                        lastname = COALESCE($2, lastname),
-                                        email = COALESCE($3, name),
-                                        cel = COALESCE($4, cel),
-                                        photo = COALESCE($5, photo)
-                                    WHERE id = $6
-                                    RETURNING name, lastname, email, cel, photo`;
-      const values = [
-         body.name ?? null,
-         body.lastname ?? null,
-         body.email ?? null,
-         body.cel ?? null,
-         body.photo ?? null,
-         id,
-      ];
-
-      const { rows } = await pool.query(query, values);
-      return rows;
-   }
-
-   async deleteUser(id: UserDto['id']): Promise<string> {
-      const query = `DELETE FROM users WHERE id=$1`;
-      const values = [id];
-
-      const { rowCount } = await pool.query(query, values);
-      if (rowCount !== 1) {
-         throw new Errors('Error deleting user', 500);
-      }
-
-      return `User ${id} deleted`;
+   async updateUser(id: UserDto['id'], body: UserUpdateDto): Promise<UserResponseDto> {
+      return await this.modelDelegate.update({
+         where: { id },
+         data: body,
+      });
    }
 }

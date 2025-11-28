@@ -1,8 +1,14 @@
 //Maneja las rutas y peticiones/respuestas HTTP	-> Service
 import type { NextFunction, RequestHandler } from 'express';
 import { UserService } from './user.service.js';
-import { type UserDto, type UserUpdateDto, type UserCreateDto } from './user.schema.js';
+import {
+   type UserDto,
+   type UserUpdateDto,
+   type UserCreateDto,
+   type UserResponseDto,
+} from './user.schema.js';
 import * as response from '../../shared/response/ApiResponse.js';
+import { Errors } from '../../utils/errors.js';
 
 export class UserController {
    constructor(private readonly userService: UserService) {}
@@ -10,20 +16,23 @@ export class UserController {
    getAllOrByNameAndLastname: RequestHandler<
       //RequestHandler: params, res body, req body, req query
       Record<string, never>,
-      UserDto[],
+      UserResponseDto[],
       Record<string, never>,
       { name?: string; lastname?: string }
    > = async (_req, res, next: NextFunction) => {
       try {
          // Get all
-         if (!_req.query.name && !_req.query.lastname) {
-            const users: UserDto[] = await this.userService.getAllUsers();
+         if (!_req.validatedQuery?.name && !_req.validatedQuery?.lastname) {
+            const users: UserResponseDto[] = await this.userService.getAllUsers();
             return response.success(_req, res, users, 200);
          }
 
          // Get a filter query for name or/and lastname
-         const { name, lastname } = _req.query;
-         const users: UserDto[] = await this.userService.getByNameAndLastname(name, lastname);
+         const { name, lastname } = _req.validatedQuery;
+         const users: UserResponseDto[] = await this.userService.getByNameAndLastname(
+            name,
+            lastname,
+         );
          return response.success(_req, res, users, 200);
       } catch (err) {
          return next(err);
@@ -32,12 +41,15 @@ export class UserController {
 
    getById: RequestHandler<
       { id: UserDto['id'] },
-      UserDto[] | boolean,
+      UserResponseDto | boolean,
       Record<string, never>,
       Record<string, never>
    > = async (_req, res, next: NextFunction) => {
       try {
-         const user: UserDto[] | boolean = await this.userService.getByIdUser(_req.params.id);
+         const params = _req.validatedParams as { id: string } | undefined;
+         if (!params?.id) throw new Errors('Parameter id is required');
+
+         const user: UserResponseDto | boolean = await this.userService.getByIdUser(params.id);
 
          return response.success(_req, res, user, 200);
       } catch (err) {
@@ -52,7 +64,8 @@ export class UserController {
       Record<string, never>
    > = async (_req, res, next: NextFunction) => {
       try {
-         const newUser: UserDto = await this.userService.postNewUser(_req.body);
+         // ! :le dice a TS que no es null ni undefined
+         const newUser: UserResponseDto = await this.userService.postNewUser(_req.validatedBody!);
          return response.success(
             _req,
             res,
@@ -69,15 +82,18 @@ export class UserController {
 
    patchUser: RequestHandler<
       { id: UserDto['id'] },
-      UserUpdateDto[],
+      UserResponseDto,
       UserUpdateDto,
       Record<string, never>
    > = async (_req, res, next: NextFunction) => {
       // Record<K, T> objeto clave, valor
       try {
-         const updatedUser: UserUpdateDto[] = await this.userService.patchUser(
-            _req.params.id,
-            _req.body,
+         const params = _req.validatedParams as { id: string } | undefined;
+         if (!params?.id) throw new Errors('Parameter id is required');
+
+         const updatedUser: UserResponseDto = await this.userService.patchUser(
+            params.id,
+            _req.validatedBody!,
          );
 
          return res.status(200).json(updatedUser);
@@ -88,12 +104,15 @@ export class UserController {
 
    deleteUser: RequestHandler<
       { id: UserDto['id'] },
-      string,
+      string | void,
       Record<string, never>,
       Record<string, never>
    > = async (_req, res, next: NextFunction) => {
       try {
-         const userDeleted = await this.userService.deleteUser(_req.params.id);
+         const params = _req.validatedParams as { id: string } | undefined;
+         if (!params?.id) throw new Errors('Parameter id is required');
+
+         const userDeleted: string | void = await this.userService.deleteUser(params.id);
 
          return res.status(200).json(userDeleted);
       } catch (err) {

@@ -1,6 +1,7 @@
 import { z, ZodError, type ZodSchema } from 'zod';
 import type { NextFunction, Request, Response } from 'express';
 import * as response from '../../shared/response/ApiResponse.js';
+import { cleanObject } from '../../utils/cleanObject.js';
 
 export type TargetValidation = 'body' | 'query' | 'params';
 
@@ -19,8 +20,23 @@ const handleErrorValidation = (
 export const validate = (schema: ZodSchema, target: TargetValidation) => {
    return (_req: Request, res: Response, next: NextFunction) => {
       try {
-         const dataToValidate = { ..._req[target] };
-         _req[target] = schema.parse(dataToValidate);
+         let dataToValidate = { ..._req[target] };
+
+         // limpiar los datos por si el cliente envia un "", null o campo vacio
+         if (target === 'body') {
+            dataToValidate = cleanObject(dataToValidate);
+         }
+
+         const validated = schema.parse(dataToValidate);
+
+         // no modificamos la req solo la agregamos a la respuesta
+         if (target === 'body') {
+            _req.validatedBody = validated;
+         } else if (target === 'query') {
+            _req.validatedQuery = validated as any;
+         } else if (target === 'params') {
+            _req.validatedParams = validated as any;
+         }
 
          return next();
       } catch (error) {
@@ -33,12 +49,26 @@ export const validate = (schema: ZodSchema, target: TargetValidation) => {
 export const validateOpcional = (schema: ZodSchema, target: TargetValidation) => {
    return (_req: Request, res: Response, next: NextFunction) => {
       try {
-         const dataToValidate = { ..._req[target] };
+         let dataToValidate = { ..._req[target] };
 
          if (Object.keys(dataToValidate).length === 0) {
             return next();
          }
-         _req[target] = schema.parse(dataToValidate);
+
+         if (target === 'body') {
+            dataToValidate = cleanObject(dataToValidate);
+         }
+
+         const validated = schema.parse(dataToValidate);
+
+         // no modificamos la req solo la agregamos a la respuesta
+         if (target === 'body') {
+            _req.validatedBody = validated;
+         } else if (target === 'query') {
+            _req.validatedQuery = validated as any;
+         } else if (target === 'params') {
+            _req.validatedParams = validated as any;
+         }
 
          return next();
       } catch (error) {

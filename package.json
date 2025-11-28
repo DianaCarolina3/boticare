@@ -12,17 +12,17 @@
    "main": "index.js",
    "scripts": {
       "build": "tsc",
-      "dev": "tsx watch src/app.ts",
+      "dev": "dotenv -e .env.dev -- tsx watch src/app.ts",
       "start": "cross-env NODE_ENV=production node dist/app.js",
-      "prisma:generate": "dotenv -e .env.dev -- prisma generate",
+      "prisma:generate": "dotenv -e .env.dev -- npx prisma generate",
       "prepare": "husky",
       "prettier": "prettier . --write",
       "lint": "eslint . --fix",
       "fix": "npm run prettier && npm run lint"
    },
    "dependencies": {
-      "@prisma/adapter-mariadb": "7.0.0",
-      "@prisma/client": "7.0.0",
+      "@prisma/adapter-mariadb": "7.0.1",
+      "@prisma/client": "7.0.1",
       "argon2": "0.44.0",
       "cross-env": "10.1.0",
       "dotenv": "17.2.1",
@@ -44,7 +44,7 @@
       "globals": "^16.4.0",
       "husky": "9.1.7",
       "prettier": "3.6.2",
-      "prisma": "7.0.0",
+      "prisma": "7.0.1",
       "tsx": "4.20.6",
       "typescript": "5.9.2",
       "typescript-eslint": "^8.46.2"

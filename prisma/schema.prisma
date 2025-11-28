@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -24,8 +23,8 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  auth      Auth?
-  recipes   Recipe[]
+  auth    Auth?
+  recipes Recipe[]
 }
 
 model Auth {
@@ -36,30 +35,30 @@ model Auth {
   lastLogin DateTime?
   createdAt DateTime  @default(now())
 
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Recipe {
-  id          String   @id @default(uuid()) @db.Char(36)
-  title       String   @db.VarChar(200)
-  description String?  @db.Text
-  prepTime    Int?     //minutos
-  cookTime    Int?     //minutos
-  servings    Int?     //porciones
-  difficulty  String?  @db.VarChar(20) //facil, medio, dificil
-  image       String?  @db.LongText    //base64 o url
+  id          String  @id @default(uuid()) @db.Char(36)
+  title       String  @db.VarChar(200)
+  description String? @db.Text
+  prepTime    Int? //minutos
+  cookTime    Int? //minutos
+  servings    Int? //porciones
+  difficulty  String? @db.VarChar(20) //facil, medio, dificil
+  image       String? @db.LongText //base64 o url
 
-  authorId    String   @db.Char(36)
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String @db.Char(36)
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  categoryId  String   @db.Char(36)
-  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @db.Char(36)
+  category   Category @relation(fields: [categoryId], references: [id])
 
   ingredients Ingredient[]
   steps       Step[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // con los indices buscamos mas rapido, como el indice de un libro
   @@index([authorId])
@@ -76,18 +75,18 @@ model Category {
 }
 
 model Ingredient {
-  id        String   @id @default(uuid()) @db.Char(36)
-  name      String   @db.VarChar(100)
-  quantity  String?  @db.VarChar(50)
-  unit      String?  @db.VarChar(50)
-  recipeId  String   @db.Char(36)
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id       String  @id @default(uuid()) @db.Char(36)
+  name     String  @db.VarChar(100)
+  quantity String? @db.VarChar(50)
+  unit     String? @db.VarChar(50)
+  recipeId String  @db.Char(36)
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }
 
 model Step {
-  id          String   @id @default(uuid()) @db.Char(36)
+  id          String @id @default(uuid()) @db.Char(36)
   order       Int
-  description String   @db.Text
-  recipeId    String   @db.Char(36)
-  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  description String @db.Text
+  recipeId    String @db.Char(36)
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }
