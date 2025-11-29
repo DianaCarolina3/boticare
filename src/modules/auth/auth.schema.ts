@@ -26,6 +26,12 @@ export const authRegisterSchema = authSchema.pick({
 export type AuthRegisterDto = z.infer<typeof authRegisterSchema>;
 
 // response
-export type AuthResponseLoginDto = {
-   token: string;
-};
+export const authResponseLoginSchema = z.object({
+   id: z.uuid(),
+   userId: z.uuid(),
+   email: z.email().transform((value) => value.toLowerCase()),
+   role: z.string(),
+   lastLogin: z.date().nullable(),
+   token: z.string(),
+});
+export type AuthResponseLoginDto = z.infer<typeof authResponseLoginSchema>;

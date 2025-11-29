@@ -19,6 +19,29 @@ export class AuthRepository extends BaseRepository<AuthResponseLoginDto> {
       });
    }
 
+   async findRegisterByEmail(email: string) {
+      return this.prisma.auth.findFirst({
+         where: {
+            user: {
+               email: email,
+            },
+         },
+         include: {
+            role: true,
+            user: true,
+         },
+      });
+   }
+
+   async updateLastLogin(idAuth: string) {
+      await this.prisma.auth.update({
+         where: {
+            id: idAuth,
+         },
+         data: { lastLogin: new Date().toISOString() },
+      });
+   }
+
    // static async deleteAuthUser(idUser: UserDto['id']) {
    //    const query = `DELETE FROM auth WHERE user_id=$1`;
    //    const values = [idUser];

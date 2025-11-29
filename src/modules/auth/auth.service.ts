@@ -1,6 +1,7 @@
 import { AuthRepository } from './auth.repository.js';
 import type { AuthRegisterDto } from './auth.schema.js';
 import { Errors } from '../../utils/errors.js';
+import { comparePassword } from '../../utils/hash.js';
 
 export class AuthService {
    constructor(private readonly authRepository: AuthRepository) {}
@@ -30,6 +31,27 @@ export class AuthService {
       };
 
       await this.authRepository.create(dataAuth);
+   }
+
+   async login(email: string, password: string) {
+      // verificar si email existe
+      const registerAuth = await this.authRepository.findRegisterByEmail(email);
+      if (!registerAuth) {
+         throw new Errors('Invalid email or password', 401);
+      }
+
+      // comparar contraseña
+      const idValidPassword = await comparePassword(password, registerAuth.password);
+      if (!idValidPassword) {
+         throw new Errors('Invalid email or password', 401);
+      }
+
+      // generar token
+
+      // actualizar el lastLogin
+      await this.authRepository.updateLastLogin(registerAuth.id);
+
+      console.log(registerAuth);
    }
 
    //  async deleteAuthUser(idUser: UserDto['id']): Promise<void> {
