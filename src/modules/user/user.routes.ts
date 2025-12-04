@@ -36,7 +36,7 @@ export const createUserRouter = () => {
       '/:id',
       validate(idSchema, 'params'),
       authenticateJWT,
-      authorizeRoles('ADMIN'),
+      authorizeRoles('ADMIN', 'USER'),
       userController.getById,
    );
    router.post(

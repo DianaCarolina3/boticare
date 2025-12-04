@@ -36,7 +36,7 @@ export const authenticateJWT = async (_req: Request, _res: Response, next: NextF
 // Verificar roles
 export const authorizeRoles = (...roles: ('ADMIN' | 'USER')[]) => {
    return (_req: Request, _res: Response, next: NextFunction) => {
-      if (!_req.user) return next(new Errors('Not authenticate', 401));
+      if (!_req.user) return next(new Errors('Not authenticated', 401));
       // si el role del usuario no es el mismo asignado a la ruta entonces error
       if (!roles.includes(_req.user.role))
          return next(new Errors('Forbidden: role not allowed', 403));
@@ -46,4 +46,8 @@ export const authorizeRoles = (...roles: ('ADMIN' | 'USER')[]) => {
 };
 
 // Dar acceso solo a lo que es propietario
-export const verifyOwnership = () => {};
+export const verifyOwnership = (_req: Request, ownerId: string) => {
+   if (!_req.user) throw new Errors('Not authenticated', 401);
+   if (_req.user.userId !== ownerId && _req.user.role !== 'ADMIN')
+      throw new Errors('Forbidden: not owner', 403);
+};

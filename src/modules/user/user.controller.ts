@@ -9,6 +9,7 @@ import {
 } from './user.schema.js';
 import * as response from '../../shared/response/ApiResponse.js';
 import { Errors } from '../../utils/errors.js';
+import { verifyOwnership } from '../../core/middlewares/auth.middleware.js';
 
 export class UserController {
    constructor(private readonly userService: UserService) {}
@@ -48,6 +49,9 @@ export class UserController {
       try {
          const params = _req.validatedParams as { id: string } | undefined;
          if (!params?.id) throw new Errors('Parameter id is required');
+
+         // Validar que el cliente sea el propietario del recurso si es user
+         verifyOwnership(_req, params.id);
 
          const user: UserResponseDto | boolean = await this.userService.getByIdUser(params.id);
 
