@@ -13,6 +13,9 @@ declare module 'express-serve-static-core' {
       validatedBody?: ReqBody;
       validatedQuery?: ReqQuery;
       validatedParams?: P;
-      // user, para crear el req.user - user_id
+      user?: {
+         userId: string;
+         role: 'ADMIN' | 'USER';
+      };
    }
 }

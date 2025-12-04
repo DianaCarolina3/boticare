@@ -22,4 +22,7 @@ export const config = {
       host: process.env.DATABASE_HOST,
       port: process.env.DATABASE_PORT,
    },
+   jwt: {
+      secret: process.env.SECRET,
+   },
 };

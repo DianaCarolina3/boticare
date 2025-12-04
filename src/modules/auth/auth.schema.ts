@@ -27,11 +27,11 @@ export type AuthRegisterDto = z.infer<typeof authRegisterSchema>;
 
 // response
 export const authResponseLoginSchema = z.object({
-   id: z.uuid(),
-   userId: z.uuid(),
-   email: z.email().transform((value) => value.toLowerCase()),
-   role: z.string(),
-   lastLogin: z.date().nullable(),
-   token: z.string(),
+   message: z.string(),
+   accessToken: z.string(),
+   user: z.object({
+      id: z.string(),
+      role: z.string(),
+   }),
 });
 export type AuthResponseLoginDto = z.infer<typeof authResponseLoginSchema>;

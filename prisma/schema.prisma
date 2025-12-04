@@ -10,6 +10,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -54,11 +55,11 @@ model Recipe {
   id          String  @id @default(uuid()) @db.Char(36)
   title       String  @db.VarChar(200)
   description String? @db.Text
-  prepTime    Int? //minutos
-  cookTime    Int? //minutos
-  servings    Int? //porciones
-  difficulty  String? @db.VarChar(20) //facil, medio, dificil
-  image       String? @db.LongText //base64 o url
+  prepTime    Int? // minutos
+  cookTime    Int? // minutos
+  servings    Int? // porciones
+  difficulty  String? @db.VarChar(20) // facil, medio, dificil
+  image       String? @db.LongText // base64 o url
 
   authorId String @db.Char(36)
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)

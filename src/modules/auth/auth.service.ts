@@ -2,6 +2,7 @@ import { AuthRepository } from './auth.repository.js';
 import type { AuthRegisterDto } from './auth.schema.js';
 import { Errors } from '../../utils/errors.js';
 import { comparePassword } from '../../utils/hash.js';
+import { signToken } from '../../utils/jwt.js';
 
 export class AuthService {
    constructor(private readonly authRepository: AuthRepository) {}
@@ -41,23 +42,27 @@ export class AuthService {
       }
 
       // comparar contraseña
-      const idValidPassword = await comparePassword(password, registerAuth.password);
-      if (!idValidPassword) {
+      const validPassword = await comparePassword(password, registerAuth.password);
+      if (!validPassword) {
          throw new Errors('Invalid email or password', 401);
       }
-
-      // generar token
 
       // actualizar el lastLogin
       await this.authRepository.updateLastLogin(registerAuth.id);
 
-      console.log(registerAuth);
+      // generar token, enviar id de user y role
+      const token = signToken(registerAuth.user.id, registerAuth.role.name);
+
+      return {
+         message: 'Login successful',
+         accessToken: token,
+         user: {
+            id: registerAuth.user.id,
+            role: registerAuth.role.name,
+         },
+      };
    }
 
-   //  async deleteAuthUser(idUser: UserDto['id']): Promise<void> {
-   //    await AuthRepository.deleteAuthUser(idUser);
-   // }
-   //
    //  async updateAuthUser(idUser: UserDto['id'], body: UserUpdateDto): Promise<void> {
    //    if (idUser && body.password) {
    //       await AuthRepository.updateAuthUser(idUser, body.password);

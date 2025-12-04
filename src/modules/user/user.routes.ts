@@ -11,6 +11,7 @@ import {
 } from './user.schema.js';
 import { AuthService } from '../auth/auth.service.js';
 import { AuthRepository } from '../auth/auth.repository.js';
+import { authenticateJWT, authorizeRoles } from '../../core/middlewares/auth.middleware.js';
 
 export const createUserRouter = () => {
    const router = Router();
@@ -27,17 +28,39 @@ export const createUserRouter = () => {
    router.get(
       '/',
       validateOpcional(nameAndLastnameSchema, 'query'),
+      authenticateJWT,
+      authorizeRoles('ADMIN'),
       userController.getAllOrByNameAndLastname,
    );
-   router.get('/:id', validate(idSchema, 'params'), userController.getById);
-   router.post('/register', validate(userCreateSchema, 'body'), userController.postNewUser);
+   router.get(
+      '/:id',
+      validate(idSchema, 'params'),
+      authenticateJWT,
+      authorizeRoles('ADMIN'),
+      userController.getById,
+   );
+   router.post(
+      '/register',
+      validate(userCreateSchema, 'body'),
+      authenticateJWT,
+      authorizeRoles('ADMIN'),
+      userController.postNewUser,
+   );
    router.patch(
       '/:id',
       validate(idSchema, 'params'),
       validate(userUpdateSchema, 'body'),
+      authenticateJWT,
+      authorizeRoles('ADMIN'),
       userController.patchUser,
    );
-   router.delete('/:id', validate(idSchema, 'params'), userController.deleteUser);
+   router.delete(
+      '/:id',
+      validate(idSchema, 'params'),
+      authenticateJWT,
+      authorizeRoles('ADMIN'),
+      userController.deleteUser,
+   );
 
    return router;
 };
