@@ -21,5 +21,7 @@ export const createRecipeRouter = () => {
       recipeController.postNewRecipe,
    );
 
+   router.get('/', recipeController.listAllRecipes);
+
    return router;
 };

@@ -23,4 +23,19 @@ export class RecipeController {
          next(err);
       }
    };
+
+   listAllRecipes: RequestHandler<
+      Record<string, never>,
+      RecipeResponseDto[],
+      Record<string, never>,
+      Record<string, never>
+   > = async (_req, res, next) => {
+      try {
+         const recipes: RecipeResponseDto[] = await this.recipeService.listAllRecipes();
+
+         result.success(_req, res, recipes, 200);
+      } catch (err) {
+         next(err);
+      }
+   };
 }

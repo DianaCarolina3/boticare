@@ -11,4 +11,8 @@ export class RecipeService {
       }
       return await this.recipeRepository.createNewRecipe(body, userId);
    }
+
+   async listAllRecipes(): Promise<RecipeResponseDto[]> {
+      return await this.recipeRepository.findAllRecipes();
+   }
 }

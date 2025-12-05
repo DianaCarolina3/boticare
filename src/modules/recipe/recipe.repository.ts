@@ -7,6 +7,26 @@ export class RecipeRepository extends BaseRepository<RecipeResponseDto> {
       super(prisma, prisma.recipe);
    }
 
+   async findAllRecipes(): Promise<RecipeResponseDto[]> {
+      return await this.modelDelegate.findMany({
+         select: {
+            title: true,
+            description: true,
+            prepTime: true,
+            cookTime: true,
+            servings: true,
+            difficulty: true,
+            image: true,
+            category: { select: { id: true, name: true } },
+            author: { select: { id: true, name: true, lastname: true } },
+            ingredients: { select: { name: true, quantity: true, unit: true } },
+            steps: { select: { order: true, description: true } },
+            createdAt: true,
+            updatedAt: true,
+         },
+      });
+   }
+
    async createNewRecipe(body: CreateRecipeDto, userId: string): Promise<RecipeResponseDto> {
       return await this.modelDelegate.create({
          data: {
