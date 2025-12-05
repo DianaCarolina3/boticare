@@ -95,6 +95,8 @@ export class UserController {
          const params = _req.validatedParams as { id: string } | undefined;
          if (!params?.id) throw new Errors('Parameter id is required');
 
+         verifyOwnership(_req, params.id);
+
          const updatedUser: UserResponseDto = await this.userService.patchUser(
             params.id,
             _req.validatedBody!,
@@ -115,6 +117,8 @@ export class UserController {
       try {
          const params = _req.validatedParams as { id: string } | undefined;
          if (!params?.id) throw new Errors('Parameter id is required');
+
+         verifyOwnership(_req, params.id);
 
          const userDeleted: string | void = await this.userService.deleteUser(params.id);
 

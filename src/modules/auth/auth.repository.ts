@@ -39,14 +39,25 @@ export class AuthRepository extends BaseRepository<AuthResponseLoginDto> {
       });
    }
 
-   //
-   // static async updateAuthUser(idUser: UserDto['id'], password: UserDto['password']) {
-   //    const query = `UPDATE auth SET password=$1 WHERE user_id=$2`;
-   //    const values = [password, idUser];
-   //
-   //    const { rowCount } = await pool.query(query, values);
-   //    if (rowCount != 1) {
-   //       throw new Errors('Error updating user', 500);
-   //    }
-   // }
+   async findPassword(userId: string) {
+      return this.prisma.auth.findUnique({
+         where: {
+            userId: userId,
+         },
+         select: {
+            password: true,
+         },
+      });
+   }
+
+   async updatePassword(userId: string, password: string) {
+      await this.prisma.auth.update({
+         where: {
+            userId,
+         },
+         data: {
+            password: password,
+         },
+      });
+   }
 }

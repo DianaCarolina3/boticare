@@ -83,15 +83,6 @@ export class UserService {
          throw new Errors('User not found', 404);
       }
 
-      // si encuentra el id hasear contrasena
-      let hashedPassword;
-      if (body.password) {
-         hashedPassword = await hashPassword(body.password);
-         body.password = hashedPassword;
-      }
-      // verificar si la contraseña es la misma o es una nueva
-      // en auth
-
       // si viene el cel quitar espacios
       let celWithoutSpaces;
       if (body.cel) {
@@ -104,10 +95,14 @@ export class UserService {
          throw new Errors('Email exists or is in use', 409);
       }
 
-      // actualizar password en auth
-      // await AuthService.updateAuthUser(id, body);
+      let { password, ...dataWithoutPassword } = body;
 
-      return await this.userRepository.updateUser(id, body);
+      // actualizar password en auth
+      if (password) {
+         await this.authService.updatePassword(id, password as string);
+      }
+
+      return await this.userRepository.updateUser(id, dataWithoutPassword);
    }
 
    async deleteUser(id: UserDto['id']): Promise<string | void> {
@@ -116,8 +111,6 @@ export class UserService {
       if (user === false) {
          throw new Errors('User not found', 404);
       }
-
-      // await AuthService.deleteAuthUser(id);
 
       const result = await this.userRepository.delete(id);
       if (result) {

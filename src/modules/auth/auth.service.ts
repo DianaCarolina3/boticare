@@ -1,7 +1,7 @@
 import { AuthRepository } from './auth.repository.js';
 import type { AuthRegisterDto } from './auth.schema.js';
 import { Errors } from '../../utils/errors.js';
-import { comparePassword } from '../../utils/hash.js';
+import { comparePassword, hashPassword } from '../../utils/hash.js';
 import { signToken } from '../../utils/jwt.js';
 
 export class AuthService {
@@ -63,9 +63,16 @@ export class AuthService {
       };
    }
 
-   //  async updateAuthUser(idUser: UserDto['id'], body: UserUpdateDto): Promise<void> {
-   //    if (idUser && body.password) {
-   //       await AuthRepository.updateAuthUser(idUser, body.password);
-   //    }
-   // }
+   async updatePassword(userId: string, password: string) {
+      // validar si la contrasena es nueva
+      const auth = await this.authRepository.findPassword(userId);
+      if (!auth) throw new Errors('User auth not found', 404);
+
+      const isSame = await comparePassword(password, auth.password);
+      if (isSame) throw new Errors('New password cannot be the same as the current password', 400);
+
+      const hashedPassword = await hashPassword(password);
+
+      await this.authRepository.updatePassword(userId, hashedPassword);
+   }
 }

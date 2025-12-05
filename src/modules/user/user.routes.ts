@@ -43,7 +43,7 @@ export const createUserRouter = () => {
       '/register',
       validate(userCreateSchema, 'body'),
       authenticateJWT,
-      authorizeRoles('ADMIN'),
+      authorizeRoles('ADMIN', 'USER'),
       userController.postNewUser,
    );
    router.patch(
@@ -51,14 +51,14 @@ export const createUserRouter = () => {
       validate(idSchema, 'params'),
       validate(userUpdateSchema, 'body'),
       authenticateJWT,
-      authorizeRoles('ADMIN'),
+      authorizeRoles('ADMIN', 'USER'),
       userController.patchUser,
    );
    router.delete(
       '/:id',
       validate(idSchema, 'params'),
       authenticateJWT,
-      authorizeRoles('ADMIN'),
+      authorizeRoles('ADMIN', 'USER'),
       userController.deleteUser,
    );
 
