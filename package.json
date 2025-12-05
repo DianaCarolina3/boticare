@@ -23,6 +23,9 @@
       "lint": "eslint . --fix",
       "fix": "npm run prettier && npm run lint"
    },
+   "prisma": {
+      "seed": "tsx prisma/seed.ts"
+   },
    "dependencies": {
       "@prisma/client": "5.22.0",
       "argon2": "0.44.0",

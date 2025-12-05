@@ -15,7 +15,34 @@ async function main() {
       create: { name: RoleName.ADMIN },
    });
 
-   console.log('Roles creados correctamente');
+   console.log('Roles created correctly');
+
+   // Crear categorias si no existen
+   const categories = [
+      { name: 'Desayuno' },
+      { name: 'Almuerzo' },
+      { name: 'Cena' },
+      { name: 'Postres' },
+      { name: 'Ensaladas' },
+      { name: 'Bebidas' },
+      { name: 'Sopas' },
+      { name: 'Carnes' },
+      { name: 'Vegetariano' },
+      { name: 'Vegano' },
+      { name: 'Comida Rápida' },
+      { name: 'Refrigerio' },
+   ];
+   await Promise.all(
+      categories.map((category) =>
+         prisma.category.upsert({
+            where: { name: category.name },
+            update: {},
+            create: category,
+         }),
+      ),
+   );
+
+   console.log('Categories created correctly');
 }
 
 main()
