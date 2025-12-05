@@ -31,6 +31,7 @@ async function main() {
       { name: 'Vegano' },
       { name: 'Comida Rápida' },
       { name: 'Refrigerio' },
+      { name: 'Otros' },
    ];
    await Promise.all(
       categories.map((category) =>

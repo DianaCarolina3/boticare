@@ -27,25 +27,19 @@ export const createUserRouter = () => {
 
    router.get(
       '/',
-      validateOpcional(nameAndLastnameSchema, 'query'),
       authenticateJWT,
       authorizeRoles('ADMIN'),
+      validateOpcional(nameAndLastnameSchema, 'query'),
       userController.getAllOrByNameAndLastname,
    );
    router.get(
       '/:id',
-      validate(idSchema, 'params'),
       authenticateJWT,
       authorizeRoles('ADMIN', 'USER'),
+      validate(idSchema, 'params'),
       userController.getById,
    );
-   router.post(
-      '/register',
-      validate(userCreateSchema, 'body'),
-      authenticateJWT,
-      authorizeRoles('ADMIN', 'USER'),
-      userController.postNewUser,
-   );
+   router.post('/register', validate(userCreateSchema, 'body'), userController.postNewUser);
    router.patch(
       '/:id',
       validate(idSchema, 'params'),
